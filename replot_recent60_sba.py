@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+import json
 import math
+import os
 import re
 import urllib.parse
 import urllib.request
@@ -30,6 +32,7 @@ CWOP_XML_BASE = "http://www.findu.com/cgi-bin/wxxml.cgi"
 CHART_PATH = Path("sba_wwtemp_chart.svg")
 CSV_PATH = Path("madis_recent60_stations.csv")
 RASS_TEXT_PATH = Path("sba_latest.01t")
+STATE_PATH = Path("station_state.json")
 
 MS_TO_MPH = 2.23694
 PST = timezone(timedelta(hours=-8), name="PST")
@@ -37,6 +40,8 @@ HTTP_USER_AGENT = "Mozilla/5.0 (compatible; sb-live-lapse/1.0)"
 CWOP_ELEV_M = {
     "KC6OYN": 1201.0,
 }
+LAST_GOOD_GRACE_MIN = 90.0
+DEFAULT_DEPLOYED_STATE_URL = "https://grabbagbingo.github.io/sb-live-lapse/station_state.json"
 
 
 def fetch_text(url: str, timeout: int = 25) -> str:
@@ -255,11 +260,11 @@ def dewpoint_c_from_temp_rh(temp_c: float, rh_pct: float) -> Optional[float]:
     return (b * gamma) / (a - gamma)
 
 
-def fetch_station_cwop(station_id: str) -> Dict:
-    out = {
+def blank_station_row(station_id: str) -> Dict:
+    return {
         "id": station_id,
         "name": STATION_NAMES.get(station_id, station_id),
-        "elev_m": CWOP_ELEV_M.get(station_id),
+        "elev_m": None,
         "temp_c": None,
         "dew_c": None,
         "temp_ob_time": None,
@@ -269,6 +274,11 @@ def fetch_station_cwop(station_id: str) -> Dict:
         "wind_gust_mps": None,
         "wind_ob_time": None,
     }
+
+
+def fetch_station_cwop(station_id: str) -> Dict:
+    out = blank_station_row(station_id)
+    out["elev_m"] = CWOP_ELEV_M.get(station_id)
 
     url = CWOP_XML_BASE + "?" + urllib.parse.urlencode({"call": station_id, "last": "2"})
     try:
@@ -352,6 +362,147 @@ def merge_cwop_if_needed(madis_row: Dict, cwop_row: Dict) -> Dict:
     if cwop_row.get("temp_ob_time") is not None:
         merged["provider"] = cwop_row.get("provider") or "CWOP-findU"
     return merged
+
+
+def state_url_from_env() -> Optional[str]:
+    direct = os.getenv("SB_DEPLOYED_STATE_URL")
+    if direct:
+        return direct
+    repo = os.getenv("GITHUB_REPOSITORY", "")
+    if "/" in repo:
+        owner, name = repo.split("/", 1)
+        return f"https://{owner}.github.io/{name}/station_state.json"
+    return DEFAULT_DEPLOYED_STATE_URL
+
+
+def normalize_state_row(station_id: str, raw: Dict) -> Dict:
+    row = blank_station_row(station_id)
+    row["name"] = str(raw.get("name") or row["name"])
+    row["provider"] = str(raw["provider"]) if raw.get("provider") else None
+
+    for key in ("elev_m", "temp_c", "dew_c", "wind_dir", "wind_spd_mps", "wind_gust_mps"):
+        row[key] = parse_float(str(raw[key])) if raw.get(key) is not None else None
+
+    for key in ("temp_ob_time", "wind_ob_time"):
+        value = raw.get(key)
+        if value:
+            value = str(value).strip()
+            row[key] = value if parse_iso_utc(value) is not None else None
+
+    return row
+
+
+def parse_state_payload(text: str) -> Dict[str, Dict]:
+    out: Dict[str, Dict] = {}
+    try:
+        payload = json.loads(text)
+    except Exception:
+        return out
+
+    stations_payload = payload.get("stations")
+    if isinstance(stations_payload, dict):
+        iterable = stations_payload.items()
+    elif isinstance(stations_payload, list):
+        iterable = ((item.get("id"), item) for item in stations_payload if isinstance(item, dict))
+    else:
+        return out
+
+    for station_id, raw in iterable:
+        if station_id not in STATIONS or not isinstance(raw, dict):
+            continue
+        out[station_id] = normalize_state_row(station_id, raw)
+    return out
+
+
+def load_last_good_state() -> Dict[str, Dict]:
+    url = state_url_from_env()
+    if not url:
+        url = DEFAULT_DEPLOYED_STATE_URL
+    try:
+        parsed = parse_state_payload(fetch_text(url, timeout=15))
+        if parsed:
+            return parsed
+    except Exception:
+        pass
+
+    if STATE_PATH.exists():
+        parsed = parse_state_payload(STATE_PATH.read_text())
+        if parsed:
+            return parsed
+    return {}
+
+
+def age_minutes(iso_time: Optional[str], now_utc: datetime) -> Optional[float]:
+    dt = parse_iso_utc(iso_time)
+    if dt is None:
+        return None
+    return (now_utc - dt).total_seconds() / 60.0
+
+
+def within_grace(iso_time: Optional[str], now_utc: datetime) -> bool:
+    age = age_minutes(iso_time, now_utc)
+    return age is not None and age <= LAST_GOOD_GRACE_MIN
+
+
+def apply_last_good_fallback(current_row: Dict, cached_row: Dict, now_utc: datetime) -> Dict:
+    merged = dict(current_row)
+    used_cache = False
+
+    if merged.get("elev_m") is None and cached_row.get("elev_m") is not None:
+        merged["elev_m"] = cached_row["elev_m"]
+
+    temp_cache_ok = within_grace(cached_row.get("temp_ob_time"), now_utc)
+    wind_cache_ok = within_grace(cached_row.get("wind_ob_time"), now_utc)
+
+    if merged.get("temp_c") is None and temp_cache_ok and cached_row.get("temp_c") is not None:
+        merged["temp_c"] = cached_row["temp_c"]
+        merged["temp_ob_time"] = cached_row.get("temp_ob_time")
+        used_cache = True
+    if merged.get("dew_c") is None and temp_cache_ok and cached_row.get("dew_c") is not None:
+        merged["dew_c"] = cached_row["dew_c"]
+        used_cache = True
+    if merged.get("wind_spd_mps") is None and wind_cache_ok and cached_row.get("wind_spd_mps") is not None:
+        merged["wind_spd_mps"] = cached_row["wind_spd_mps"]
+        merged["wind_ob_time"] = cached_row.get("wind_ob_time")
+        used_cache = True
+    if merged.get("wind_gust_mps") is None and wind_cache_ok and cached_row.get("wind_gust_mps") is not None:
+        merged["wind_gust_mps"] = cached_row["wind_gust_mps"]
+        if merged.get("wind_ob_time") is None:
+            merged["wind_ob_time"] = cached_row.get("wind_ob_time")
+        used_cache = True
+    if merged.get("wind_dir") is None and wind_cache_ok and cached_row.get("wind_dir") is not None:
+        merged["wind_dir"] = cached_row["wind_dir"]
+        if merged.get("wind_ob_time") is None:
+            merged["wind_ob_time"] = cached_row.get("wind_ob_time")
+        used_cache = True
+
+    if used_cache:
+        base_provider = merged.get("provider") or cached_row.get("provider") or "cache"
+        if "(last-good)" not in str(base_provider):
+            merged["provider"] = f"{base_provider} (last-good)"
+    return merged
+
+
+def write_station_state(stations: List[Dict], now_utc: datetime) -> None:
+    state = {
+        "generated_at": now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "stations": {},
+    }
+    for row in stations:
+        state["stations"][row["id"]] = {
+            "id": row["id"],
+            "name": row.get("name"),
+            "elev_m": row.get("elev_m"),
+            "temp_c": row.get("temp_c"),
+            "dew_c": row.get("dew_c"),
+            "temp_ob_time": row.get("temp_ob_time"),
+            "provider": row.get("provider"),
+            "wind_dir": row.get("wind_dir"),
+            "wind_spd_mps": row.get("wind_spd_mps"),
+            "wind_gust_mps": row.get("wind_gust_mps"),
+            "wind_ob_time": row.get("wind_ob_time"),
+        }
+    STATE_PATH.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n")
 
 
 def utc_iso_to_pst_hhmm(iso_time: Optional[str]) -> Optional[str]:
@@ -570,6 +721,12 @@ def main() -> None:
             if cwop_row is not None:
                 stations[i] = merge_cwop_if_needed(row, cwop_row)
 
+    last_good = load_last_good_state()
+    for i, row in enumerate(stations):
+        cached = last_good.get(row["id"])
+        if cached is not None:
+            stations[i] = apply_last_good_fallback(row, cached, now_utc)
+
     for row in stations:
         update_age_and_recency(row, now_utc)
 
@@ -610,6 +767,7 @@ def main() -> None:
         )
 
     CSV_PATH.write_text("\n".join(csv_lines) + "\n")
+    write_station_state(stations, now_utc)
 
     print("rass_file=%s" % filename)
     print("rass_time_utc=%s" % (rass_time_utc or "missing"))
