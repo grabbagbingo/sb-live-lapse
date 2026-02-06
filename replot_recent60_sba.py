@@ -10,9 +10,9 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 
-STATIONS = ["KC60YN", "SE068", "SE234", "MTIC1", "MPWC1", "421SE", "SE053", "KSBA"]
+STATIONS = ["KC6OYN", "SE068", "SE234", "MTIC1", "MPWC1", "421SE", "SE053", "KSBA"]
 STATION_NAMES = {
-    "KC60YN": "La Cumbre",
+    "KC6OYN": "La Cumbre",
     "SE068": "VOR",
     "SE234": "AntFarm",
     "MTIC1": "Montecito",
