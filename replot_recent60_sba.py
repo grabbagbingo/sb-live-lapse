@@ -126,9 +126,9 @@ def parse_rass(raw: str) -> Tuple[Optional[str], List[Tuple[int, float]]]:
 def fetch_station(station_id: str) -> Dict:
     params = {
         "time": "0",
-        "minbck": "-180",
+        "minbck": "-59",
         "minfwd": "0",
-        "recwin": "6",
+        "recwin": "3",
         "timefilter": "0",
         "dfltrsel": "3",
         "stasel": "1",
