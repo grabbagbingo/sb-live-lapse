@@ -7,6 +7,14 @@
 </head>
 <body style="font-family: Helvetica, Arial, sans-serif; margin: 20px;">
   <h1>Santa Barbara Lapse Chart (Updates every 15min)</h1>
-  <img src="./sba_wwtemp_chart.svg" alt="Santa Barbara lapse chart" style="max-width: 100%; height: auto;" />
+  <img id="chart" src="./sba_wwtemp_chart.svg" alt="Santa Barbara lapse chart" style="max-width: 100%; height: auto;" />
+  <script>
+    (function () {
+      var slotMs = 15 * 60 * 1000;
+      var slot = Math.floor(Date.now() / slotMs);
+      var img = document.getElementById("chart");
+      img.src = "./sba_wwtemp_chart.svg?v=" + slot;
+    })();
+  </script>
 </body>
 </html>
