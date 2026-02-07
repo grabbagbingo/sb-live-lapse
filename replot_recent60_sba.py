@@ -3,6 +3,7 @@ import json
 import math
 import os
 import re
+import time
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -42,6 +43,10 @@ CWOP_ELEV_M = {
 }
 LAST_GOOD_GRACE_MIN = 90.0
 DEFAULT_DEPLOYED_STATE_URL = "https://grabbagbingo.github.io/sb-live-lapse/station_state.json"
+RASS_LIST_RETRIES = 3
+RASS_FILE_RETRIES = 2
+RASS_CANDIDATE_COUNT = 5
+FETCH_RETRY_DELAY_SEC = 1.5
 
 
 def fetch_text(url: str, timeout: int = 25) -> str:
@@ -50,27 +55,42 @@ def fetch_text(url: str, timeout: int = 25) -> str:
         return response.read().decode("utf-8", errors="ignore")
 
 
-def latest_rass_file() -> Tuple[str, str, str]:
-    root_html = fetch_text(RASS_BASE)
+def fetch_text_with_retry(url: str, timeout: int, retries: int, delay_sec: float) -> str:
+    last_exc: Optional[Exception] = None
+    for attempt in range(1, retries + 1):
+        try:
+            return fetch_text(url, timeout=timeout)
+        except Exception as exc:
+            last_exc = exc
+            if attempt < retries:
+                time.sleep(delay_sec)
+    if last_exc is None:
+        raise RuntimeError("Fetch failed without exception: %s" % url)
+    raise last_exc
+
+
+def latest_rass_candidates(max_files: int = RASS_CANDIDATE_COUNT) -> Tuple[str, str, List[str]]:
+    root_html = fetch_text_with_retry(RASS_BASE, timeout=25, retries=RASS_LIST_RETRIES, delay_sec=FETCH_RETRY_DELAY_SEC)
     years = [int(v) for v in re.findall(r'href="(20\d{2})/"', root_html)]
     if not years:
         raise RuntimeError("No RASS year directories found")
 
     year = max(years)
     year_url = f"{RASS_BASE}{year}/"
-    year_html = fetch_text(year_url)
+    year_html = fetch_text_with_retry(year_url, timeout=25, retries=RASS_LIST_RETRIES, delay_sec=FETCH_RETRY_DELAY_SEC)
     doys = [int(v) for v in re.findall(r'href="(\d{3})/"', year_html)]
     if not doys:
         raise RuntimeError("No RASS day directories found")
 
     doy = max(doys)
     day_url = f"{year_url}{doy:03d}/"
-    day_html = fetch_text(day_url)
+    day_html = fetch_text_with_retry(day_url, timeout=25, retries=RASS_LIST_RETRIES, delay_sec=FETCH_RETRY_DELAY_SEC)
     files = re.findall(r'href="(sba\d{5}\.\d{2}t)"', day_html)
     if not files:
         raise RuntimeError("No RASS files found in latest day")
 
-    return str(year), f"{doy:03d}", sorted(files)[-1]
+    files_desc = sorted(set(files), reverse=True)
+    return str(year), f"{doy:03d}", files_desc[:max_files]
 
 
 def parse_rass(raw: str) -> Tuple[Optional[str], List[Tuple[int, float]]]:
@@ -132,6 +152,34 @@ def parse_rass(raw: str) -> Tuple[Optional[str], List[Tuple[int, float]]]:
         out.append((alt, t))
 
     return obs_time_utc, out
+
+
+def load_rass_with_fallback() -> Tuple[str, Optional[str], List[Tuple[int, float]], str]:
+    errors: List[str] = []
+    try:
+        year, doy, candidates = latest_rass_candidates()
+        for filename in candidates:
+            rass_url = f"{RASS_BASE}{year}/{doy}/{filename}"
+            try:
+                raw_rass = fetch_text_with_retry(rass_url, timeout=25, retries=RASS_FILE_RETRIES, delay_sec=FETCH_RETRY_DELAY_SEC)
+                rass_time_utc, rass_points = parse_rass(raw_rass)
+                RASS_TEXT_PATH.write_text(raw_rass)
+                return filename, rass_time_utc, rass_points, "live"
+            except Exception as exc:
+                errors.append(f"{filename}: {exc}")
+    except Exception as exc:
+        errors.append(f"directory-listing: {exc}")
+
+    if RASS_TEXT_PATH.exists():
+        try:
+            raw_cached = RASS_TEXT_PATH.read_text()
+            rass_time_utc, rass_points = parse_rass(raw_cached)
+            return RASS_TEXT_PATH.name, rass_time_utc, rass_points, "cached"
+        except Exception as exc:
+            errors.append(f"{RASS_TEXT_PATH.name}: {exc}")
+
+    detail = " | ".join(errors[-4:]) if errors else "unknown"
+    raise RuntimeError("Unable to load RASS data (%s)" % detail)
 
 
 def fetch_station(station_id: str) -> Dict:
@@ -688,12 +736,7 @@ def draw_svg(
 def main() -> None:
     now_utc = datetime.now(timezone.utc)
 
-    year, doy, filename = latest_rass_file()
-    rass_url = f"{RASS_BASE}{year}/{doy}/{filename}"
-    raw_rass = fetch_text(rass_url)
-    RASS_TEXT_PATH.write_text(raw_rass)
-
-    rass_time_utc, rass_points = parse_rass(raw_rass)
+    filename, rass_time_utc, rass_points, rass_source = load_rass_with_fallback()
 
     stations: List[Dict] = []
     with ThreadPoolExecutor(max_workers=4) as pool:
@@ -770,6 +813,7 @@ def main() -> None:
     write_station_state(stations, now_utc)
 
     print("rass_file=%s" % filename)
+    print("rass_source=%s" % rass_source)
     print("rass_time_utc=%s" % (rass_time_utc or "missing"))
     print("title=%s" % title)
     print("recent_station_count=%d" % len(stations_recent))
