@@ -42,7 +42,7 @@ CWOP_ELEV_M = {
     "KC6OYN": 1201.0,
 }
 LAST_GOOD_GRACE_MIN = 90.0
-DEFAULT_DEPLOYED_STATE_URL = "https://grabbagbingo.github.io/sb-live-lapse/station_state.json"
+DEFAULT_DEPLOYED_STATE_URL = "https://jimmysaurusrex.github.io/sb-live-lapse/station_state.json"
 RASS_LIST_RETRIES = 3
 RASS_FILE_RETRIES = 2
 RASS_CANDIDATE_COUNT = 5
