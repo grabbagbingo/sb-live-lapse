@@ -7,13 +7,45 @@
 </head>
 <body style="font-family: Helvetica, Arial, sans-serif; margin: 20px;">
   <h1>Santa Barbara Lapse Chart (Updates every 15min)</h1>
-  <img id="chart" src="./sba_wwtemp_chart.svg" alt="Santa Barbara lapse chart" style="max-width: 100%; height: auto;" />
+  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+    <button id="metricBtn" type="button" style="padding: 6px 10px; border: 1px solid #444; background: #111; color: #fff; border-radius: 4px; cursor: pointer;">Metric</button>
+    <button id="imperialBtn" type="button" style="padding: 6px 10px; border: 1px solid #888; background: #fff; color: #222; border-radius: 4px; cursor: pointer;">Imperial</button>
+  </div>
+  <img id="chart" src="./sba_wwtemp_chart_metric.svg" alt="Santa Barbara lapse chart" style="max-width: 100%; height: auto;" />
   <script>
     (function () {
       var slotMs = 15 * 60 * 1000;
       var slot = Math.floor(Date.now() / slotMs);
       var img = document.getElementById("chart");
-      img.src = "./sba_wwtemp_chart.svg?v=" + slot;
+      var metricBtn = document.getElementById("metricBtn");
+      var imperialBtn = document.getElementById("imperialBtn");
+      var storageKey = "sb_units";
+      var sources = {
+        metric: "./sba_wwtemp_chart_metric.svg?v=" + slot,
+        imperial: "./sba_wwtemp_chart_imperial.svg?v=" + slot
+      };
+
+      function setActive(unit) {
+        var isMetric = unit === "metric";
+        img.src = sources[unit];
+        metricBtn.style.background = isMetric ? "#111" : "#fff";
+        metricBtn.style.color = isMetric ? "#fff" : "#222";
+        metricBtn.style.borderColor = isMetric ? "#444" : "#888";
+        imperialBtn.style.background = isMetric ? "#fff" : "#111";
+        imperialBtn.style.color = isMetric ? "#222" : "#fff";
+        imperialBtn.style.borderColor = isMetric ? "#888" : "#444";
+        try { localStorage.setItem(storageKey, unit); } catch (e) {}
+      }
+
+      metricBtn.addEventListener("click", function () { setActive("metric"); });
+      imperialBtn.addEventListener("click", function () { setActive("imperial"); });
+
+      var saved = "metric";
+      try {
+        var raw = localStorage.getItem(storageKey);
+        if (raw === "imperial") saved = "imperial";
+      } catch (e) {}
+      setActive(saved);
     })();
   </script>
 </body>

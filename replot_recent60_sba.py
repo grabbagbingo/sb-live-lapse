@@ -31,11 +31,14 @@ CWOP_XML_BASE = "http://www.findu.com/cgi-bin/wxxml.cgi"
 
 # Repo-relative outputs so GitHub Actions can run this anywhere.
 CHART_PATH = Path("sba_wwtemp_chart.svg")
+CHART_METRIC_PATH = Path("sba_wwtemp_chart_metric.svg")
+CHART_IMPERIAL_PATH = Path("sba_wwtemp_chart_imperial.svg")
 CSV_PATH = Path("madis_recent60_stations.csv")
 RASS_TEXT_PATH = Path("sba_latest.01t")
 STATE_PATH = Path("station_state.json")
 
 MS_TO_MPH = 2.23694
+FT_PER_M = 3.28084
 PST = timezone(timedelta(hours=-8), name="PST")
 HTTP_USER_AGENT = "Mozilla/5.0 (compatible; sb-live-lapse/1.0)"
 CWOP_ELEV_M = {
@@ -549,8 +552,37 @@ def write_station_state(stations: List[Dict], now_utc: datetime) -> None:
             "wind_spd_mps": row.get("wind_spd_mps"),
             "wind_gust_mps": row.get("wind_gust_mps"),
             "wind_ob_time": row.get("wind_ob_time"),
-        }
+    }
     STATE_PATH.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n")
+
+
+def c_to_f(temp_c: float) -> float:
+    return temp_c * 9.0 / 5.0 + 32.0
+
+
+def m_to_ft(alt_m: float) -> float:
+    return alt_m * FT_PER_M
+
+
+def convert_rass_points_units(points_m_c: List[Tuple[int, float]], unit_system: str) -> List[Tuple[float, float]]:
+    if unit_system == "imperial":
+        return [(m_to_ft(float(alt_m)), c_to_f(temp_c)) for alt_m, temp_c in points_m_c]
+    return [(float(alt_m), temp_c) for alt_m, temp_c in points_m_c]
+
+
+def convert_station_rows_units(rows: List[Dict], unit_system: str) -> List[Dict]:
+    out: List[Dict] = []
+    for row in rows:
+        converted = dict(row)
+        if unit_system == "imperial":
+            if converted.get("elev_m") is not None:
+                converted["elev_m"] = m_to_ft(converted["elev_m"])
+            if converted.get("temp_c") is not None:
+                converted["temp_c"] = c_to_f(converted["temp_c"])
+            if converted.get("dew_c") is not None:
+                converted["dew_c"] = c_to_f(converted["dew_c"])
+        out.append(converted)
+    return out
 
 
 def utc_iso_to_pst_hhmm(iso_time: Optional[str]) -> Optional[str]:
@@ -576,12 +608,45 @@ def wind_text_for_row(row: Dict) -> str:
     return f"winds {direction}, {speed_mph}g{gust_mph}mph"
 
 
+def build_lcl_title(vor_row_metric: Optional[Dict], altitude_unit: str) -> str:
+    vor_wind = "winds missing"
+    if vor_row_metric is not None:
+        vor_wind = wind_text_for_row(vor_row_metric)
+
+    if (
+        vor_row_metric is None
+        or vor_row_metric.get("elev_m") is None
+        or vor_row_metric.get("temp_c") is None
+        or vor_row_metric.get("dew_c") is None
+    ):
+        return f"Estimated LCL @ VOR: missing - {vor_wind}"
+
+    cloud_base_m = vor_row_metric["elev_m"] + 125.0 * (vor_row_metric["temp_c"] - vor_row_metric["dew_c"])
+    if altitude_unit == "ft":
+        cloud_base_value = int(round(m_to_ft(cloud_base_m)))
+        cloud_base_label = "ft"
+    else:
+        cloud_base_value = int(round(cloud_base_m))
+        cloud_base_label = "m"
+
+    time_hhmm = utc_iso_to_pst_hhmm(vor_row_metric.get("temp_ob_time"))
+    if time_hhmm:
+        return f"Estimated LCL @ VOR: {cloud_base_value} {cloud_base_label} - {vor_wind} ({time_hhmm} PST)"
+    return f"Estimated LCL @ VOR: {cloud_base_value} {cloud_base_label} - {vor_wind}"
+
+
 def draw_svg(
-    rass_points: List[Tuple[int, float]],
+    rass_points: List[Tuple[float, float]],
     stations_recent: List[Dict],
     stations_all: List[Dict],
     title_text: str,
     rass_time_hhmm_pst: str,
+    temp_unit: str,
+    altitude_unit: str,
+    temp_suffix: str,
+    dalr_label: str,
+    dalr_rate_per_1000: float,
+    y_tick_step: int,
 ) -> str:
     width, height = 1180, 600
     margin_left, margin_right, margin_top, margin_bottom = 90, 420, 50, 80
@@ -590,8 +655,8 @@ def draw_svg(
 
     anchor_alt, anchor_temp = rass_points[0]
 
-    def dalr_temp(alt_m: float) -> float:
-        return anchor_temp - 9.8 * (alt_m - anchor_alt) / 1000.0
+    def dalr_temp(alt_value: float) -> float:
+        return anchor_temp - dalr_rate_per_1000 * (alt_value - anchor_alt) / 1000.0
 
     station_alts = [s["elev_m"] for s in stations_recent if s["elev_m"] is not None]
     y_min = int(math.floor(min([0.0, rass_points[0][0]] + station_alts) / 100.0) * 100) if station_alts else 0
@@ -635,10 +700,10 @@ def draw_svg(
         x_cursor += x_step
 
     y_ticks = []
-    y_cursor = int(math.ceil(y_min / 200.0) * 200)
+    y_cursor = int(math.ceil(y_min / float(y_tick_step)) * y_tick_step)
     while y_cursor <= y_max:
         y_ticks.append(y_cursor)
-        y_cursor += 200
+        y_cursor += y_tick_step
 
     lines = [
         '<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d" viewBox="0 0 %d %d">' % (width, height, width, height),
@@ -671,10 +736,10 @@ def draw_svg(
 
     lines.append('<line class="axis" x1="%d" y1="%d" x2="%d" y2="%d" />' % (margin_left, margin_top, margin_left, height - margin_bottom))
     lines.append('<line class="axis" x1="%d" y1="%d" x2="%d" y2="%d" />' % (margin_left, height - margin_bottom, width - margin_right, height - margin_bottom))
-    lines.append('<text class="label" x="%.2f" y="%d" text-anchor="middle">Temperature (C)</text>' % (margin_left + plot_w / 2.0, height - 30))
+    lines.append('<text class="label" x="%.2f" y="%d" text-anchor="middle">Temperature (%s)</text>' % (margin_left + plot_w / 2.0, height - 30, temp_unit))
     lines.append(
-        '<text class="label" x="26" y="%.2f" text-anchor="middle" transform="rotate(-90 26 %.2f)">Altitude (m)</text>'
-        % (margin_top + plot_h / 2.0, margin_top + plot_h / 2.0)
+        '<text class="label" x="26" y="%.2f" text-anchor="middle" transform="rotate(-90 26 %.2f)">Altitude (%s)</text>'
+        % (margin_top + plot_h / 2.0, margin_top + plot_h / 2.0, altitude_unit)
     )
 
     lines.append('<path class="rass" d="%s" />' % obs_path)
@@ -709,7 +774,7 @@ def draw_svg(
     lines.append('<line class="rass" x1="%d" y1="%d" x2="%d" y2="%d" />' % (legend_x, legend_y, legend_x + 24, legend_y))
     lines.append('<text class="label" x="%d" y="%d">RASS @ %s</text>' % (legend_x + 30, legend_y + 4, rass_time_hhmm_pst))
     lines.append('<line class="dalr" x1="%d" y1="%d" x2="%d" y2="%d" />' % (legend_x, legend_y + 20, legend_x + 24, legend_y + 20))
-    lines.append('<text class="label" x="%d" y="%d">DALR (9.8 C/km)</text>' % (legend_x + 30, legend_y + 24))
+    lines.append('<text class="label" x="%d" y="%d">%s</text>' % (legend_x + 30, legend_y + 24, dalr_label))
 
     list_y0 = legend_y + 62
     lines.append('<text class="legend-h" x="%d" y="%d">Stations (PST)</text>' % (legend_x, list_y0))
@@ -718,7 +783,7 @@ def draw_svg(
     for row in stations_all:
         temp_text = "temp missing"
         if row.get("temp_c") is not None:
-            temp_text = "%.1fC" % row["temp_c"]
+            temp_text = "%.1f%s" % (row["temp_c"], temp_suffix)
 
         obs_time = row.get("wind_ob_time") or row.get("temp_ob_time")
         time_text = utc_iso_to_pst_hhmm(obs_time)
@@ -775,26 +840,48 @@ def main() -> None:
 
     stations_recent = [r for r in stations if r.get("recent") and r.get("temp_c") is not None and r.get("elev_m") is not None]
 
-    title = "Estimated LCL @ VOR: missing"
-    vor = next((r for r in stations if r["id"] == "SE068"), None)
-    vor_wind = "winds missing"
-    if vor is not None:
-        vor_wind = wind_text_for_row(vor)
-    if vor and vor.get("elev_m") is not None and vor.get("temp_c") is not None and vor.get("dew_c") is not None:
-        cloud_base_m = vor["elev_m"] + 125.0 * (vor["temp_c"] - vor["dew_c"])
-        cloud_base_i = int(round(cloud_base_m))
-        time_hhmm = utc_iso_to_pst_hhmm(vor.get("temp_ob_time"))
-        if time_hhmm:
-            title = f"Estimated LCL @ VOR: {cloud_base_i} m - {vor_wind} ({time_hhmm} PST)"
-        else:
-            title = f"Estimated LCL @ VOR: {cloud_base_i} m - {vor_wind}"
-    else:
-        title = f"Estimated LCL @ VOR: missing - {vor_wind}"
-
     rass_hhmm = utc_iso_to_pst_hhmm(rass_time_utc) or "missing"
+    vor = next((r for r in stations if r["id"] == "SE068"), None)
+    title_metric = build_lcl_title(vor, altitude_unit="m")
+    title_imperial = build_lcl_title(vor, altitude_unit="ft")
 
-    svg = draw_svg(rass_points, stations_recent, stations, title, rass_hhmm)
-    CHART_PATH.write_text(svg)
+    metric_rass = convert_rass_points_units(rass_points, unit_system="metric")
+    metric_all = convert_station_rows_units(stations, unit_system="metric")
+    metric_recent = [r for r in metric_all if r.get("recent") and r.get("temp_c") is not None and r.get("elev_m") is not None]
+
+    imperial_rass = convert_rass_points_units(rass_points, unit_system="imperial")
+    imperial_all = convert_station_rows_units(stations, unit_system="imperial")
+    imperial_recent = [r for r in imperial_all if r.get("recent") and r.get("temp_c") is not None and r.get("elev_m") is not None]
+
+    svg_metric = draw_svg(
+        metric_rass,
+        metric_recent,
+        metric_all,
+        title_metric,
+        rass_hhmm,
+        temp_unit="C",
+        altitude_unit="m",
+        temp_suffix="C",
+        dalr_label="DALR (9.8 C/km)",
+        dalr_rate_per_1000=9.8,
+        y_tick_step=200,
+    )
+    svg_imperial = draw_svg(
+        imperial_rass,
+        imperial_recent,
+        imperial_all,
+        title_imperial,
+        rass_hhmm,
+        temp_unit="F",
+        altitude_unit="ft",
+        temp_suffix="F",
+        dalr_label="DALR (5.4 F/1000 ft)",
+        dalr_rate_per_1000=5.4,
+        y_tick_step=500,
+    )
+    CHART_METRIC_PATH.write_text(svg_metric)
+    CHART_IMPERIAL_PATH.write_text(svg_imperial)
+    CHART_PATH.write_text(svg_metric)
 
     csv_lines = ["station,name,elev_m,temp_c,ob_time,age_min,provider,recent"]
     for row in stations:
@@ -815,7 +902,8 @@ def main() -> None:
     print("rass_file=%s" % filename)
     print("rass_source=%s" % rass_source)
     print("rass_time_utc=%s" % (rass_time_utc or "missing"))
-    print("title=%s" % title)
+    print("title_metric=%s" % title_metric)
+    print("title_imperial=%s" % title_imperial)
     print("recent_station_count=%d" % len(stations_recent))
     for row in stations:
         print(

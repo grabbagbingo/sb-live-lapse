@@ -35,6 +35,8 @@ jobs:
           mkdir -p site
           cp index.html site/
           cp sba_wwtemp_chart.svg site/
+          cp sba_wwtemp_chart_metric.svg site/
+          cp sba_wwtemp_chart_imperial.svg site/
           cp station_state.json site/
 
       - uses: actions/upload-pages-artifact@v4

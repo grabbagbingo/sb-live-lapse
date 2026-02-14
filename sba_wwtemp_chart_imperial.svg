@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="600" viewBox="0 0 1180 600">
+<style>
+  .axis { stroke: #202020; stroke-width: 1; }
+  .grid { stroke: #dddddd; stroke-width: 1; }
+  .title { font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; fill: #111111; }
+  .label { font-family: Helvetica, Arial, sans-serif; font-size: 12px; fill: #222222; }
+  .legend-h { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; fill: #222222; }
+  .legend-row { font-family: Helvetica, Arial, sans-serif; font-size: 11px; fill: #333333; }
+  .rass { fill: none; stroke: #0077b6; stroke-width: 2; }
+  .dalr { fill: none; stroke: #d1495b; stroke-width: 2; stroke-dasharray: 6 4; }
+  .rass-point { fill: #0077b6; }
+  .station { fill: #f4a261; stroke: #8b4c12; stroke-width: 1; }
+  .station-label { font-family: Helvetica, Arial, sans-serif; font-size: 11px; fill: #444444; }
+</style>
+<rect x="0" y="0" width="1180" height="600" fill="#ffffff" />
+<text class="title" x="90" y="28">Estimated LCL @ VOR: 3588 ft - winds 154, 7g16mph (15:00 PST)</text>
+<line class="grid" x1="90" y1="520.00" x2="760" y2="520.00" />
+<text class="label" x="82" y="524.00" text-anchor="end">0</text>
+<line class="grid" x1="90" y1="461.25" x2="760" y2="461.25" />
+<text class="label" x="82" y="465.25" text-anchor="end">500</text>
+<line class="grid" x1="90" y1="402.50" x2="760" y2="402.50" />
+<text class="label" x="82" y="406.50" text-anchor="end">1000</text>
+<line class="grid" x1="90" y1="343.75" x2="760" y2="343.75" />
+<text class="label" x="82" y="347.75" text-anchor="end">1500</text>
+<line class="grid" x1="90" y1="285.00" x2="760" y2="285.00" />
+<text class="label" x="82" y="289.00" text-anchor="end">2000</text>
+<line class="grid" x1="90" y1="226.25" x2="760" y2="226.25" />
+<text class="label" x="82" y="230.25" text-anchor="end">2500</text>
+<line class="grid" x1="90" y1="167.50" x2="760" y2="167.50" />
+<text class="label" x="82" y="171.50" text-anchor="end">3000</text>
+<line class="grid" x1="90" y1="108.75" x2="760" y2="108.75" />
+<text class="label" x="82" y="112.75" text-anchor="end">3500</text>
+<line class="grid" x1="90" y1="50.00" x2="760" y2="50.00" />
+<text class="label" x="82" y="54.00" text-anchor="end">4000</text>
+<line class="grid" x1="214.77" y1="50" x2="214.77" y2="520" />
+<text class="label" x="214.77" y="538" text-anchor="middle">45.0</text>
+<line class="grid" x1="363.00" y1="50" x2="363.00" y2="520" />
+<text class="label" x="363.00" y="538" text-anchor="middle">50.0</text>
+<line class="grid" x1="511.23" y1="50" x2="511.23" y2="520" />
+<text class="label" x="511.23" y="538" text-anchor="middle">55.0</text>
+<line class="grid" x1="659.46" y1="50" x2="659.46" y2="520" />
+<text class="label" x="659.46" y="538" text-anchor="middle">60.0</text>
+<line class="axis" x1="90" y1="50" x2="90" y2="520" />
+<line class="axis" x1="90" y1="520" x2="760" y2="520" />
+<text class="label" x="425.00" y="570" text-anchor="middle">Temperature (F)</text>
+<text class="label" x="26" y="285.00" text-anchor="middle" transform="rotate(-90 26 285.00)">Altitude (ft)</text>
+<path class="rass" d="M640.13,442.90 L604.56,404.35 L559.22,365.80 L527.36,327.25 L475.01,288.70 L447.92,250.15 L431.46,211.60 L412.60,173.05" />
+<path class="dalr" d="M745.18,520.00 L104.82,50.00" />
+<circle class="rass-point" cx="640.13" cy="442.90" r="2" />
+<circle class="rass-point" cx="604.56" cy="404.35" r="2" />
+<circle class="rass-point" cx="559.22" cy="365.80" r="2" />
+<circle class="rass-point" cx="527.36" cy="327.25" r="2" />
+<circle class="rass-point" cx="475.01" cy="288.70" r="2" />
+<circle class="rass-point" cx="447.92" cy="250.15" r="2" />
+<circle class="rass-point" cx="431.46" cy="211.60" r="2" />
+<circle class="rass-point" cx="412.60" cy="173.05" r="2" />
+<rect class="station" x="300.71" y="54.02" width="6" height="6" />
+<text class="station-label" x="309.71" y="64.00" text-anchor="start">La Cumbre</text>
+<rect class="station" x="229.26" y="104.55" width="6" height="6" />
+<text class="station-label" x="238.26" y="111.55" text-anchor="start">VOR</text>
+<rect class="station" x="357.01" y="240.29" width="6" height="6" />
+<text class="station-label" x="366.01" y="247.29" text-anchor="start">AntFarm</text>
+<rect class="station" x="508.24" y="326.76" width="6" height="6" />
+<text class="station-label" x="517.24" y="333.76" text-anchor="start">Montecito</text>
+<rect class="station" x="636.90" y="425.37" width="6" height="6" />
+<text class="station-label" x="645.90" y="432.37" text-anchor="start">Upper Parma</text>
+<rect class="station" x="591.22" y="417.97" width="6" height="6" />
+<text class="station-label" x="600.22" y="448.97" text-anchor="start">Romero Cyn</text>
+<rect class="station" x="733.54" y="515.84" width="6" height="6" />
+<text class="station-label" x="730.54" y="520.00" text-anchor="end">Airport</text>
+<line class="rass" x1="774" y1="60" x2="798" y2="60" />
+<text class="label" x="804" y="64">RASS @ 14:55</text>
+<line class="dalr" x1="774" y1="80" x2="798" y2="80" />
+<text class="label" x="804" y="84">DALR (5.4 F/1000 ft)</text>
+<text class="legend-h" x="774" y="122">Stations (PST)</text>
+<text class="legend-row" x="774" y="138">La Cumbre @ 15:17 - 48.0F, winds 166, 10g17mph</text>
+<text class="legend-row" x="774" y="152">VOR @ 15:00 - 45.6F, winds 154, 7g16mph</text>
+<text class="legend-row" x="774" y="166">AntFarm @ 15:00 - 49.9F, winds 056, 7g11mph</text>
+<text class="legend-row" x="774" y="180">Montecito @ 14:47 - 55.0F, winds 212, 2g17mph</text>
+<text class="legend-row" x="774" y="194">SM Pass @ 14:06 - 57.0F, winds 126, 9g17mph</text>
+<text class="legend-row" x="774" y="208">Upper Parma @ 15:00 - 59.3F, winds 211, 3g9mph</text>
+<text class="legend-row" x="774" y="222">Romero Cyn @ 15:00 - 57.8F, winds 152, 5g11mph</text>
+<text class="legend-row" x="774" y="236">Airport @ 15:05 - 62.6F, winds 210, 7g17mph</text>
+</svg>
