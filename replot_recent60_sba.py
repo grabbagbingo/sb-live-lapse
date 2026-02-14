@@ -648,8 +648,8 @@ def draw_svg(
     dalr_rate_per_1000: float,
     y_tick_step: int,
 ) -> str:
-    width, height = 1180, 600
-    margin_left, margin_right, margin_top, margin_bottom = 90, 420, 50, 80
+    width, height = 1180, 760
+    margin_left, margin_right, margin_top, margin_bottom = 90, 70, 50, 250
     plot_w = width - margin_left - margin_right
     plot_h = height - margin_top - margin_bottom
 
@@ -736,7 +736,10 @@ def draw_svg(
 
     lines.append('<line class="axis" x1="%d" y1="%d" x2="%d" y2="%d" />' % (margin_left, margin_top, margin_left, height - margin_bottom))
     lines.append('<line class="axis" x1="%d" y1="%d" x2="%d" y2="%d" />' % (margin_left, height - margin_bottom, width - margin_right, height - margin_bottom))
-    lines.append('<text class="label" x="%.2f" y="%d" text-anchor="middle">Temperature (%s)</text>' % (margin_left + plot_w / 2.0, height - 30, temp_unit))
+    lines.append(
+        '<text class="label" x="%.2f" y="%d" text-anchor="middle">Temperature (%s)</text>'
+        % (margin_left + plot_w / 2.0, height - margin_bottom + 36, temp_unit)
+    )
     lines.append(
         '<text class="label" x="26" y="%.2f" text-anchor="middle" transform="rotate(-90 26 %.2f)">Altitude (%s)</text>'
         % (margin_top + plot_h / 2.0, margin_top + plot_h / 2.0, altitude_unit)
@@ -769,8 +772,8 @@ def draw_svg(
         else:
             lines.append('<text class="station-label" x="%.2f" y="%.2f" text-anchor="start">%s</text>' % (x_px + 6, label_y + 4, label))
 
-    legend_x = width - margin_right + 14
-    legend_y = margin_top + 10
+    legend_x = margin_left
+    legend_y = height - margin_bottom + 52
     lines.append('<line class="rass" x1="%d" y1="%d" x2="%d" y2="%d" />' % (legend_x, legend_y, legend_x + 24, legend_y))
     lines.append('<text class="label" x="%d" y="%d">RASS @ %s</text>' % (legend_x + 30, legend_y + 4, rass_time_hhmm_pst))
     lines.append('<line class="dalr" x1="%d" y1="%d" x2="%d" y2="%d" />' % (legend_x, legend_y + 20, legend_x + 24, legend_y + 20))

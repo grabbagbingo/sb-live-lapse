@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-02-14T23:20:28Z",
+  "generated_at": "2026-02-14T23:36:15Z",
   "stations": {
     "421SE": {
-      "dew_c": 11.90999800000003,
+      "dew_c": 11.869989000000032,
       "elev_m": 237.7,
       "id": "421SE",
       "name": "Upper Parma",
       "provider": "MesoWest",
-      "temp_c": 15.18898900000005,
-      "temp_ob_time": "2026-02-14T23:00",
-      "wind_dir": 211.0,
-      "wind_gust_mps": 3.951,
-      "wind_ob_time": "2026-02-14T23:00",
-      "wind_spd_mps": 1.368
+      "temp_c": 15.421991000000048,
+      "temp_ob_time": "2026-02-14T23:20",
+      "wind_dir": 192.5,
+      "wind_gust_mps": 3.2,
+      "wind_ob_time": "2026-02-14T23:20",
+      "wind_spd_mps": 1.23
     },
     "KC6OYN": {
       "dew_c": 5.625484170215063,
@@ -21,11 +21,11 @@
       "name": "La Cumbre",
       "provider": "CWOP-findU",
       "temp_c": 8.88888888888889,
-      "temp_ob_time": "2026-02-14T23:17",
-      "wind_dir": 166.0,
-      "wind_gust_mps": 7.5996674027913125,
-      "wind_ob_time": "2026-02-14T23:17",
-      "wind_spd_mps": 4.4703925898772425
+      "temp_ob_time": "2026-02-14T23:33",
+      "wind_dir": 190.0,
+      "wind_gust_mps": 8.046706661779037,
+      "wind_ob_time": "2026-02-14T23:33",
+      "wind_spd_mps": 4.023353330889519
     },
     "KSBA": {
       "dew_c": 11.999994000000015,
@@ -34,24 +34,24 @@
       "name": "Airport",
       "provider": "ASOS-HFM (last-good)",
       "temp_c": 16.999994000000015,
-      "temp_ob_time": "2026-02-14T23:05",
-      "wind_dir": 210.0,
+      "temp_ob_time": "2026-02-14T23:25",
+      "wind_dir": 230.0,
       "wind_gust_mps": 7.716667,
-      "wind_ob_time": "2026-02-14T23:05",
-      "wind_spd_mps": 3.086667
+      "wind_ob_time": "2026-02-14T23:25",
+      "wind_spd_mps": 2.572222
     },
     "MPWC1": {
-      "dew_c": 9.529993000000047,
+      "dew_c": 10.490015000000028,
       "elev_m": 454.5,
       "id": "MPWC1",
       "name": "SM Pass",
-      "provider": null,
+      "provider": "RAWS",
       "temp_c": 13.889001000000007,
-      "temp_ob_time": "2026-02-14T22:06",
-      "wind_dir": 126.0,
+      "temp_ob_time": "2026-02-14T23:06",
+      "wind_dir": 139.0,
       "wind_gust_mps": 7.598,
-      "wind_ob_time": "2026-02-14T22:06",
-      "wind_spd_mps": 4.023
+      "wind_ob_time": "2026-02-14T23:06",
+      "wind_spd_mps": 3.575
     },
     "MTIC1": {
       "dew_c": null,
@@ -67,43 +67,43 @@
       "wind_spd_mps": 0.895
     },
     "SE053": {
-      "dew_c": 11.749994000000015,
+      "dew_c": 11.89000900000002,
       "elev_m": 256.9,
       "id": "SE053",
       "name": "Romero Cyn",
       "provider": "MesoWest",
-      "temp_c": 14.333002000000022,
-      "temp_ob_time": "2026-02-14T23:00",
-      "wind_dir": 152.399994,
-      "wind_gust_mps": 5.067,
-      "wind_ob_time": "2026-02-14T23:00",
-      "wind_spd_mps": 2.423
+      "temp_c": 14.222009000000014,
+      "temp_ob_time": "2026-02-14T23:20",
+      "wind_dir": 151.5,
+      "wind_gust_mps": 5.324,
+      "wind_ob_time": "2026-02-14T23:20",
+      "wind_spd_mps": 2.145
     },
     "SE068": {
-      "dew_c": 7.360010000000045,
+      "dew_c": 7.4899840000000495,
       "elev_m": 1069.9,
       "id": "SE068",
       "name": "VOR",
       "provider": "MesoWest",
-      "temp_c": 7.550012000000038,
-      "temp_ob_time": "2026-02-14T23:00",
-      "wind_dir": 153.5,
-      "wind_gust_mps": 7.285,
-      "wind_ob_time": "2026-02-14T23:00",
-      "wind_spd_mps": 3.164
+      "temp_c": 7.7560060000000135,
+      "temp_ob_time": "2026-02-14T23:20",
+      "wind_dir": 164.5,
+      "wind_gust_mps": 6.955,
+      "wind_ob_time": "2026-02-14T23:20",
+      "wind_spd_mps": 2.958
     },
     "SE234": {
       "dew_c": 9.939996000000008,
       "elev_m": 717.8,
       "id": "SE234",
       "name": "AntFarm",
-      "provider": "MesoWest",
+      "provider": "MesoWest (last-good)",
       "temp_c": 9.943994000000032,
       "temp_ob_time": "2026-02-14T23:00",
-      "wind_dir": 55.669998,
-      "wind_gust_mps": 4.928,
-      "wind_ob_time": "2026-02-14T23:00",
-      "wind_spd_mps": 2.937
+      "wind_dir": 59.91,
+      "wind_gust_mps": 6.894,
+      "wind_ob_time": "2026-02-14T23:20",
+      "wind_spd_mps": 4.198
     }
   }
 }
