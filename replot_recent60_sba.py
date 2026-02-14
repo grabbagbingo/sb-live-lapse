@@ -774,12 +774,13 @@ def draw_svg(
 
     legend_x = margin_left
     legend_y = height - margin_bottom + 52
+    dalr_x = legend_x + 220
     lines.append('<line class="rass" x1="%d" y1="%d" x2="%d" y2="%d" />' % (legend_x, legend_y, legend_x + 24, legend_y))
     lines.append('<text class="label" x="%d" y="%d">RASS @ %s</text>' % (legend_x + 30, legend_y + 4, rass_time_hhmm_pst))
-    lines.append('<line class="dalr" x1="%d" y1="%d" x2="%d" y2="%d" />' % (legend_x, legend_y + 20, legend_x + 24, legend_y + 20))
-    lines.append('<text class="label" x="%d" y="%d">%s</text>' % (legend_x + 30, legend_y + 24, dalr_label))
+    lines.append('<line class="dalr" x1="%d" y1="%d" x2="%d" y2="%d" />' % (dalr_x, legend_y, dalr_x + 24, legend_y))
+    lines.append('<text class="label" x="%d" y="%d">%s</text>' % (dalr_x + 30, legend_y + 4, dalr_label))
 
-    list_y0 = legend_y + 62
+    list_y0 = legend_y + 34
     lines.append('<text class="legend-h" x="%d" y="%d">Stations (PST)</text>' % (legend_x, list_y0))
 
     row_y = list_y0 + 16

@@ -62,19 +62,19 @@
 <text class="station-label" x="950.35" y="429.89" text-anchor="start">Upper Parma</text>
 <rect class="station" x="852.27" y="416.10" width="6" height="6" />
 <text class="station-label" x="861.27" y="447.10" text-anchor="start">Romero Cyn</text>
-<rect class="station" x="1058.50" y="505.94" width="6" height="6" />
-<text class="station-label" x="1055.50" y="510.00" text-anchor="end">Airport</text>
+<rect class="station" x="984.26" y="505.94" width="6" height="6" />
+<text class="station-label" x="993.26" y="510.00" text-anchor="start">Airport</text>
 <line class="rass" x1="90" y1="562" x2="114" y2="562" />
 <text class="label" x="120" y="566">RASS @ 14:55</text>
-<line class="dalr" x1="90" y1="582" x2="114" y2="582" />
-<text class="label" x="120" y="586">DALR (9.8 C/km)</text>
-<text class="legend-h" x="90" y="624">Stations (PST)</text>
-<text class="legend-row" x="90" y="640">La Cumbre @ 15:33 - 8.9C, winds 190, 9g18mph</text>
-<text class="legend-row" x="90" y="654">VOR @ 15:20 - 7.8C, winds 164, 7g16mph</text>
-<text class="legend-row" x="90" y="668">AntFarm @ 15:20 - 9.9C, winds 060, 9g15mph</text>
-<text class="legend-row" x="90" y="682">Montecito @ 14:47 - 12.8C, winds 212, 2g17mph</text>
-<text class="legend-row" x="90" y="696">SM Pass @ 15:06 - 13.9C, winds 139, 8g17mph</text>
-<text class="legend-row" x="90" y="710">Upper Parma @ 15:20 - 15.4C, winds 192, 3g7mph</text>
-<text class="legend-row" x="90" y="724">Romero Cyn @ 15:20 - 14.2C, winds 152, 5g12mph</text>
-<text class="legend-row" x="90" y="738">Airport @ 15:25 - 17.0C, winds 230, 6g17mph</text>
+<line class="dalr" x1="310" y1="562" x2="334" y2="562" />
+<text class="label" x="340" y="566">DALR (9.8 C/km)</text>
+<text class="legend-h" x="90" y="596">Stations (PST)</text>
+<text class="legend-row" x="90" y="612">La Cumbre @ 15:42 - 8.9C, winds 155, 10g24mph</text>
+<text class="legend-row" x="90" y="626">VOR @ 15:20 - 7.8C, winds 164, 7g16mph</text>
+<text class="legend-row" x="90" y="640">AntFarm @ 15:20 - 9.9C, winds 060, 9g15mph</text>
+<text class="legend-row" x="90" y="654">Montecito @ 14:47 - 12.8C, winds 212, 2g17mph</text>
+<text class="legend-row" x="90" y="668">SM Pass @ 15:06 - 13.9C, winds 139, 8g17mph</text>
+<text class="legend-row" x="90" y="682">Upper Parma @ 15:20 - 15.4C, winds 192, 3g7mph</text>
+<text class="legend-row" x="90" y="696">Romero Cyn @ 15:20 - 14.2C, winds 152, 5g12mph</text>
+<text class="legend-row" x="90" y="710">Airport @ 15:30 - 16.0C, winds 240, 5g17mph</text>
 </svg>
