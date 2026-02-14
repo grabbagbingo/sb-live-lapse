@@ -10,10 +10,13 @@
   .dalr { fill: none; stroke: #d1495b; stroke-width: 2; stroke-dasharray: 6 4; }
   .rass-point { fill: #0077b6; }
   .station { fill: #f4a261; stroke: #8b4c12; stroke-width: 1; }
+  .barb-shaft { stroke: #1f2937; stroke-width: 1.3; }
+  .barb-feather { stroke: #1f2937; stroke-width: 1.2; }
+  .barb-flag { fill: #1f2937; stroke: #1f2937; stroke-width: 1; }
   .station-label { font-family: Helvetica, Arial, sans-serif; font-size: 11px; fill: #444444; }
 </style>
 <rect x="0" y="0" width="1180" height="760" fill="#ffffff" />
-<text class="title" x="90" y="28">Estimated LCL @ VOR: 3618 ft - winds 171, 7g13mph (15:30 PST)</text>
+<text class="title" x="90" y="28">Estimated LCL @ VOR: 3630 ft - winds 173, 7g13mph (15:40 PST)</text>
 <line class="grid" x1="90" y1="510.00" x2="1110" y2="510.00" />
 <text class="label" x="82" y="514.00" text-anchor="end">0</text>
 <line class="grid" x1="90" y1="452.50" x2="1110" y2="452.50" />
@@ -55,30 +58,43 @@
 <circle class="rass-point" cx="609.83" cy="208.16" r="2" />
 <circle class="rass-point" cx="581.13" cy="170.43" r="2" />
 <rect class="station" x="412.35" y="53.87" width="6" height="6" />
+<line class="barb-shaft" x1="415.35" y1="56.87" x2="421.50" y2="73.78" />
+<line class="barb-feather" x1="421.50" y1="73.78" x2="414.24" y2="74.30" />
 <text class="station-label" x="421.35" y="64.00" text-anchor="start">La Cumbre</text>
-<rect class="station" x="310.32" y="103.33" width="6" height="6" />
-<text class="station-label" x="319.32" y="110.33" text-anchor="start">VOR</text>
+<rect class="station" x="325.68" y="103.33" width="6" height="6" />
+<line class="barb-shaft" x1="328.68" y1="106.33" x2="330.87" y2="124.20" />
+<line class="barb-feather" x1="330.87" y1="124.20" x2="326.75" y2="123.49" />
+<text class="station-label" x="334.68" y="110.33" text-anchor="start">VOR</text>
 <rect class="station" x="498.06" y="236.18" width="6" height="6" />
+<line class="barb-shaft" x1="501.06" y1="239.18" x2="516.22" y2="229.47" />
+<line class="barb-feather" x1="516.22" y1="229.47" x2="517.37" y2="233.48" />
 <text class="station-label" x="507.06" y="243.18" text-anchor="start">AntFarm</text>
 <rect class="station" x="818.55" y="335.52" width="6" height="6" />
+<line class="barb-shaft" x1="821.55" y1="338.52" x2="833.36" y2="352.10" />
+<line class="barb-feather" x1="833.36" y1="352.10" x2="829.55" y2="353.82" />
 <text class="station-label" x="827.55" y="342.52" text-anchor="start">SM Pass</text>
-<rect class="station" x="905.64" y="417.32" width="6" height="6" />
-<text class="station-label" x="914.64" y="424.32" text-anchor="start">Parma</text>
-<rect class="station" x="865.91" y="410.07" width="6" height="6" />
-<text class="station-label" x="874.91" y="441.07" text-anchor="start">Romero Cyn</text>
+<rect class="station" x="882.65" y="417.32" width="6" height="6" />
+<circle class="barb-shaft" cx="885.65" cy="420.32" r="2.5" fill="none" />
+<text class="station-label" x="891.65" y="424.32" text-anchor="start">Parma</text>
+<rect class="station" x="869.57" y="410.07" width="6" height="6" />
+<line class="barb-shaft" x1="872.57" y1="413.07" x2="881.43" y2="428.74" />
+<line class="barb-feather" x1="881.43" y1="428.74" x2="877.36" y2="429.66" />
+<text class="station-label" x="878.57" y="441.07" text-anchor="start">Romero Cyn</text>
 <rect class="station" x="990.05" y="505.87" width="6" height="6" />
+<line class="barb-shaft" x1="993.05" y1="508.87" x2="979.26" y2="520.44" />
+<line class="barb-feather" x1="979.26" y1="520.44" x2="977.61" y2="516.60" />
 <text class="station-label" x="999.05" y="510.00" text-anchor="start">Airport</text>
 <line class="rass" x1="90" y1="562" x2="114" y2="562" />
 <text class="label" x="120" y="566">RASS @ 14:55</text>
 <line class="dalr" x1="310" y1="562" x2="334" y2="562" />
 <text class="label" x="340" y="566">DALR (5.4 F/1000 ft)</text>
 <text class="legend-h" x="90" y="596">Stations (PST)</text>
-<text class="legend-row" x="90" y="612">La Cumbre @ 15:50 - 48.0F, winds 169, 17g20mph</text>
-<text class="legend-row" x="90" y="626">VOR @ 15:30 - 45.7F, winds 171, 7g13mph</text>
-<text class="legend-row" x="90" y="640">AntFarm @ 15:30 - 49.9F, winds 060, 8g12mph</text>
+<text class="legend-row" x="90" y="612">La Cumbre @ 15:54 - 48.0F, winds 160, 9g20mph</text>
+<text class="legend-row" x="90" y="626">VOR @ 15:40 - 46.1F, winds 173, 7g13mph</text>
+<text class="legend-row" x="90" y="640">AntFarm @ 15:40 - 49.9F, winds 057, 6g11mph</text>
 <text class="legend-row" x="90" y="654">Montecito @ 14:47 - 55.0F, winds 212, 2g17mph</text>
 <text class="legend-row" x="90" y="668">SM Pass @ 15:06 - 57.0F, winds 139, 8g17mph</text>
-<text class="legend-row" x="90" y="682">Parma @ 15:30 - 58.9F, winds 199, 2g7mph</text>
-<text class="legend-row" x="90" y="696">Romero Cyn @ 15:30 - 58.0F, winds 159, 5g12mph</text>
-<text class="legend-row" x="90" y="710">Airport @ 15:40 - 60.8F, winds 220, 6g17mph</text>
+<text class="legend-row" x="90" y="682">Parma @ 15:40 - 58.4F, winds 196, 3g7mph</text>
+<text class="legend-row" x="90" y="696">Romero Cyn @ 15:40 - 58.1F, winds 150, 5g13mph</text>
+<text class="legend-row" x="90" y="710">Airport @ 15:45 - 60.8F, winds 230, 7g17mph</text>
 </svg>

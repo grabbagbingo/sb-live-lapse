@@ -39,6 +39,7 @@ STATE_PATH = Path("station_state.json")
 
 MS_TO_MPH = 2.23694
 FT_PER_M = 3.28084
+KTS_PER_MPS = 1.94384
 PST = timezone(timedelta(hours=-8), name="PST")
 HTTP_USER_AGENT = "Mozilla/5.0 (compatible; sb-live-lapse/1.0)"
 CWOP_ELEV_M = {
@@ -608,6 +609,65 @@ def wind_text_for_row(row: Dict) -> str:
     return f"winds {direction}, {speed_mph}g{gust_mph}mph"
 
 
+def wind_barb_svg(x_px: float, y_px: float, wind_dir_deg: Optional[float], wind_spd_mps: Optional[float]) -> List[str]:
+    if wind_dir_deg is None or wind_spd_mps is None:
+        return []
+
+    # Meteorological barbs use knots and standard 50/10/5 knot increments.
+    speed_kt = max(0.0, wind_spd_mps * KTS_PER_MPS)
+    barb_speed = int(5 * round(speed_kt / 5.0))
+
+    if barb_speed <= 0:
+        return ['<circle class="barb-shaft" cx="%.2f" cy="%.2f" r="2.5" fill="none" />' % (x_px, y_px)]
+
+    rad = math.radians(wind_dir_deg % 360.0)
+    ux = math.sin(rad)
+    uy = -math.cos(rad)
+    nx = -uy
+    ny = ux
+
+    shaft_len = 18.0
+    tip_x = x_px + shaft_len * ux
+    tip_y = y_px + shaft_len * uy
+
+    out = ['<line class="barb-shaft" x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f" />' % (x_px, y_px, tip_x, tip_y)]
+
+    remaining = barb_speed
+    offset = 0.0
+
+    while remaining >= 50:
+        p0x = tip_x - ux * offset
+        p0y = tip_y - uy * offset
+        p1x = tip_x - ux * (offset + 4.0)
+        p1y = tip_y - uy * (offset + 4.0)
+        p2x = p1x + nx * 7.0 - ux * 2.0
+        p2y = p1y + ny * 7.0 - uy * 2.0
+        out.append(
+            '<polygon class="barb-flag" points="%.2f,%.2f %.2f,%.2f %.2f,%.2f" />'
+            % (p0x, p0y, p1x, p1y, p2x, p2y)
+        )
+        offset += 7.0
+        remaining -= 50
+
+    while remaining >= 10:
+        bx = tip_x - ux * offset
+        by = tip_y - uy * offset
+        fx = bx + nx * 7.0 - ux * 2.0
+        fy = by + ny * 7.0 - uy * 2.0
+        out.append('<line class="barb-feather" x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f" />' % (bx, by, fx, fy))
+        offset += 4.0
+        remaining -= 10
+
+    if remaining >= 5:
+        bx = tip_x - ux * offset
+        by = tip_y - uy * offset
+        fx = bx + nx * 4.0 - ux * 1.2
+        fy = by + ny * 4.0 - uy * 1.2
+        out.append('<line class="barb-feather" x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f" />' % (bx, by, fx, fy))
+
+    return out
+
+
 def build_lcl_title(vor_row_metric: Optional[Dict], altitude_unit: str) -> str:
     vor_wind = "winds missing"
     if vor_row_metric is not None:
@@ -718,6 +778,9 @@ def draw_svg(
         "  .dalr { fill: none; stroke: #d1495b; stroke-width: 2; stroke-dasharray: 6 4; }",
         "  .rass-point { fill: #0077b6; }",
         "  .station { fill: #f4a261; stroke: #8b4c12; stroke-width: 1; }",
+        "  .barb-shaft { stroke: #1f2937; stroke-width: 1.3; }",
+        "  .barb-feather { stroke: #1f2937; stroke-width: 1.2; }",
+        "  .barb-flag { fill: #1f2937; stroke: #1f2937; stroke-width: 1; }",
         "  .station-label { font-family: Helvetica, Arial, sans-serif; font-size: 11px; fill: #444444; }",
         "</style>",
         '<rect x="0" y="0" width="%d" height="%d" fill="#ffffff" />' % (width, height),
@@ -756,6 +819,8 @@ def draw_svg(
         x_px = x_to_px(row["temp_c"])
         y_px = y_to_px(row["elev_m"])
         lines.append('<rect class="station" x="%.2f" y="%.2f" width="6" height="6" />' % (x_px - 3, y_px - 3))
+        for barb_line in wind_barb_svg(x_px, y_px, row.get("wind_dir"), row.get("wind_spd_mps")):
+            lines.append(barb_line)
 
         label_y = y_px
         for _ in range(30):
