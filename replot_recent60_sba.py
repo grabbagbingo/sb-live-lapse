@@ -980,6 +980,94 @@ def build_lcl_title(vor_row_metric: Optional[Dict], altitude_unit: str) -> str:
     return f"Estimated LCL @ VOR: {cloud_base_value} {cloud_base_label} - {vor_wind}"
 
 
+def dalr_divergence_data(stations_all: List[Dict], dalr_rate_per_1000: float) -> Dict[str, Dict]:
+    out: Dict[str, Dict] = {}
+    usable = [row for row in stations_all if row.get("elev_m") is not None and row.get("temp_c") is not None]
+
+    for row in stations_all:
+        row_id = row.get("id")
+        if not row_id:
+            continue
+        if row.get("elev_m") is None or row.get("temp_c") is None:
+            out[row_id] = {"kind": "missing", "items": []}
+            continue
+
+        lowers: List[Dict] = []
+        for candidate in usable:
+            if candidate is row:
+                continue
+            if candidate["elev_m"] < row["elev_m"]:
+                lowers.append(candidate)
+
+        if not lowers:
+            out[row_id] = {"kind": "na", "items": []}
+            continue
+
+        lowers.sort(key=lambda item: item["elev_m"], reverse=True)
+        parts: List[Dict] = []
+        for lower in lowers:
+            predicted_temp = lower["temp_c"] - dalr_rate_per_1000 * (row["elev_m"] - lower["elev_m"]) / 1000.0
+            divergence = row["temp_c"] - predicted_temp
+            lower_name = lower.get("name") or lower.get("id") or "lower"
+            parts.append({"name": lower_name, "divergence": divergence})
+
+        out[row_id] = {"kind": "values", "items": parts}
+
+    return out
+
+
+def next_lower_station_dalr_metrics(stations: List[Dict], dalr_rate_per_1000: float) -> Dict[str, Dict]:
+    out: Dict[str, Dict] = {}
+    usable = [row for row in stations if row.get("elev_m") is not None and row.get("temp_c") is not None]
+
+    for row in stations:
+        row_id = row.get("id")
+        if not row_id or row.get("elev_m") is None or row.get("temp_c") is None:
+            if row_id:
+                out[row_id] = {"deviation": None, "time_delta_min": None}
+            continue
+
+        lower: Optional[Dict] = None
+        for candidate in usable:
+            if candidate is row:
+                continue
+            if candidate["elev_m"] >= row["elev_m"]:
+                continue
+            if lower is None or candidate["elev_m"] > lower["elev_m"]:
+                lower = candidate
+
+        if lower is None:
+            out[row_id] = {"deviation": None, "time_delta_min": None}
+            continue
+
+        predicted_temp = lower["temp_c"] - dalr_rate_per_1000 * (row["elev_m"] - lower["elev_m"]) / 1000.0
+        upper_dt = parse_iso_utc(row.get("temp_ob_time"))
+        lower_dt = parse_iso_utc(lower.get("temp_ob_time"))
+        time_delta_min: Optional[int] = None
+        if upper_dt is not None and lower_dt is not None:
+            time_delta_min = int(round((lower_dt - upper_dt).total_seconds() / 60.0))
+        out[row_id] = {
+            "deviation": row["temp_c"] - predicted_temp,
+            "time_delta_min": time_delta_min,
+        }
+
+    return out
+
+
+def rass_gate_dalr_deviations(
+    rass_points: List[Tuple[float, float]], dalr_rate_per_1000: float
+) -> List[Optional[float]]:
+    if not rass_points:
+        return []
+    out: List[Optional[float]] = [None]
+    for i in range(1, len(rass_points)):
+        lower_alt, lower_temp = rass_points[i - 1]
+        alt, temp = rass_points[i]
+        predicted = lower_temp - dalr_rate_per_1000 * (alt - lower_alt) / 1000.0
+        out.append(temp - predicted)
+    return out
+
+
 def draw_svg(
     rass_points: List[Tuple[float, float]],
     stations_recent: List[Dict],
@@ -1059,14 +1147,20 @@ def draw_svg(
         "  .label { font-family: Helvetica, Arial, sans-serif; font-size: 12px; fill: #222222; }",
         "  .legend-h { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; fill: #222222; }",
         "  .legend-row { font-family: Helvetica, Arial, sans-serif; font-size: 11px; fill: #333333; }",
-        "  .rass { fill: none; stroke: #0077b6; stroke-width: 2; }",
-        "  .dalr { fill: none; stroke: #d1495b; stroke-width: 1.5; stroke-dasharray: 6 4; stroke-opacity: 0.45; }",
+        "  .rass { fill: none; stroke: #000000; stroke-width: 2; }",
+        "  .dalr { fill: none; stroke: #000000; stroke-width: 1.5; stroke-dasharray: 6 4; stroke-opacity: 0.45; }",
         "  .rass-point { fill: #0077b6; }",
         "  .station { fill: #f4a261; stroke: #8b4c12; stroke-width: 1; }",
         "  .barb-shaft { stroke: #1f2937; stroke-width: 1.3; }",
         "  .barb-feather { stroke: #1f2937; stroke-width: 1.2; }",
         "  .barb-flag { fill: #1f2937; stroke: #1f2937; stroke-width: 1; }",
         "  .station-label { font-family: Helvetica, Arial, sans-serif; font-size: 11px; fill: #444444; }",
+        "  .station-dev-pos { font-family: Helvetica, Arial, sans-serif; font-size: 10px; fill: #c62828; }",
+        "  .station-dev-neg { font-family: Helvetica, Arial, sans-serif; font-size: 10px; fill: #1565c0; }",
+        "  .station-dev-na { font-family: Helvetica, Arial, sans-serif; font-size: 10px; fill: #666666; }",
+        "  .rass-dev-pos { font-family: Helvetica, Arial, sans-serif; font-size: 9px; fill: #c62828; }",
+        "  .rass-dev-neg { font-family: Helvetica, Arial, sans-serif; font-size: 9px; fill: #1565c0; }",
+        "  .rass-dev-na { font-family: Helvetica, Arial, sans-serif; font-size: 9px; fill: #666666; }",
         "</style>",
         '<rect x="0" y="0" width="%d" height="%d" fill="#ffffff" />' % (width, height),
         '<text class="title" x="%d" y="%d">%s</text>' % (margin_left, margin_top - 22, title_text),
@@ -1096,9 +1190,35 @@ def draw_svg(
     lines.append('<path class="rass" d="%s" />' % obs_path)
     lines.append('<path class="dalr" d="%s" />' % dalr_path)
 
-    for alt, temp in rass_points:
-        lines.append('<circle class="rass-point" cx="%.2f" cy="%.2f" r="2" />' % (x_to_px(temp), y_to_px(alt)))
+    rass_dev = rass_gate_dalr_deviations(rass_points, dalr_rate_per_1000)
+    for i, (alt, temp) in enumerate(rass_points):
+        x_px = x_to_px(temp)
+        y_px = y_to_px(alt)
+        lines.append('<circle class="rass-point" cx="%.2f" cy="%.2f" r="2" />' % (x_px, y_px))
 
+        dev_val = rass_dev[i] if i < len(rass_dev) else None
+        if dev_val is None:
+            dev_text = "(n/a)"
+            dev_class = "rass-dev-na"
+        else:
+            dev_text = "(%+.1f)" % dev_val
+            if dev_val > 0:
+                dev_class = "rass-dev-pos"
+            elif dev_val < 0:
+                dev_class = "rass-dev-neg"
+            else:
+                dev_class = "rass-dev-na"
+
+        dev_anchor = "start" if (i % 2 == 0) else "end"
+        dev_x = x_px + 6 if dev_anchor == "start" else x_px - 6
+        dev_x = max(margin_left + 4, min(width - margin_right - 4, dev_x))
+        dev_y = max(margin_top + 8, min(height - margin_bottom - 4, y_px - 3))
+        lines.append(
+            '<text class="%s" x="%.2f" y="%.2f" text-anchor="%s">%s</text>'
+            % (dev_class, dev_x, dev_y, dev_anchor, dev_text)
+        )
+
+    station_dev = next_lower_station_dalr_metrics(stations_recent, dalr_rate_per_1000)
     placed_ys: List[float] = []
     for row in stations_recent:
         x_px = x_to_px(row["temp_c"])
@@ -1109,18 +1229,51 @@ def draw_svg(
 
         label_y = y_px
         for _ in range(30):
-            if all(abs(label_y - prev) >= 12 for prev in placed_ys):
+            if all(abs(label_y - prev) >= 18 for prev in placed_ys):
                 break
             label_y += 12
-        label_y = max(margin_top + 10, min(height - margin_bottom - 4, label_y))
+        label_y = max(margin_top + 10, min(height - margin_bottom - 16, label_y))
         placed_ys.append(label_y)
 
         label = row["name"]
         est_w = 6 * len(label)
         if x_px + est_w + 8 > width - margin_right:
             lines.append('<text class="station-label" x="%.2f" y="%.2f" text-anchor="end">%s</text>' % (x_px - 6, label_y + 4, label))
+            dev_anchor = "end"
+            dev_x = x_px - 6
         else:
             lines.append('<text class="station-label" x="%.2f" y="%.2f" text-anchor="start">%s</text>' % (x_px + 6, label_y + 4, label))
+            dev_anchor = "start"
+            dev_x = x_px + 6
+
+        dev_info = station_dev.get(row["id"], {"deviation": None, "time_delta_min": None})
+        dev_val = dev_info.get("deviation")
+        time_delta_min = dev_info.get("time_delta_min")
+        if dev_val is None:
+            dev_text = "(n/a)"
+            dev_class = "station-dev-na"
+            time_text = ""
+        else:
+            dev_text = "(%+.1f)" % dev_val
+            if dev_val > 0:
+                dev_class = "station-dev-pos"
+            elif dev_val < 0:
+                dev_class = "station-dev-neg"
+            else:
+                dev_class = "station-dev-na"
+            time_text = " (%+dmin)" % time_delta_min if isinstance(time_delta_min, int) else " (n/a)"
+
+        dev_y = min(height - margin_bottom - 2, label_y + 14)
+        if time_text:
+            lines.append(
+                '<text class="station-dev-na" x="%.2f" y="%.2f" text-anchor="%s"><tspan class="%s">%s</tspan><tspan fill="#444444">%s</tspan></text>'
+                % (dev_x, dev_y, dev_anchor, dev_class, dev_text, time_text)
+            )
+        else:
+            lines.append(
+                '<text class="%s" x="%.2f" y="%.2f" text-anchor="%s">%s</text>'
+                % (dev_class, dev_x, dev_y, dev_anchor, dev_text)
+            )
 
     legend_x = margin_left
     legend_y = height - margin_bottom + 52
@@ -1132,6 +1285,7 @@ def draw_svg(
 
     list_y0 = legend_y + 34
     lines.append('<text class="legend-h" x="%d" y="%d">Stations</text>' % (legend_x, list_y0))
+    dalr_info_by_station = dalr_divergence_data(stations_all, dalr_rate_per_1000)
 
     row_y = list_y0 + 16
     for row in stations_all:
@@ -1142,10 +1296,43 @@ def draw_svg(
         obs_time = row.get("wind_ob_time") or row.get("temp_ob_time")
         time_text = utc_iso_to_pst_hhmm(obs_time)
         if time_text:
-            text = "%s @ %s - %s, %s" % (row["name"], time_text, temp_text, wind_text_for_row(row))
+            prefix = "%s @ %s - %s, %s, DALR dev " % (row["name"], time_text, temp_text, wind_text_for_row(row))
         else:
-            text = "%s @ missing - %s, winds missing" % (row["name"], temp_text)
-        lines.append('<text class="legend-row" x="%d" y="%d">%s</text>' % (legend_x, row_y, text))
+            prefix = "%s @ missing - %s, winds missing, DALR dev " % (row["name"], temp_text)
+
+        dalr_info = dalr_info_by_station.get(row["id"], {"kind": "missing", "items": []})
+        kind = dalr_info.get("kind")
+        items = dalr_info.get("items") if isinstance(dalr_info.get("items"), list) else []
+        if kind != "values" or not items:
+            suffix = "n/a" if kind == "na" else "missing"
+            lines.append('<text class="legend-row" x="%d" y="%d">%s%s</text>' % (legend_x, row_y, prefix, suffix))
+        else:
+            pieces = ['<text class="legend-row" x="%d" y="%d">' % (legend_x, row_y), "<tspan>%s</tspan>" % prefix]
+            for i, item in enumerate(items):
+                if not isinstance(item, dict):
+                    continue
+                if i > 0:
+                    pieces.append("<tspan>; </tspan>")
+                divergence = item.get("divergence")
+                if not isinstance(divergence, (int, float)):
+                    token_text = "%s:missing" % (item.get("name") or "lower")
+                    token_color = "#333333"
+                else:
+                    token_text = "%s:%s%.1f%s" % (
+                        item.get("name") or "lower",
+                        "+" if divergence >= 0.0 else "",
+                        divergence,
+                        temp_suffix,
+                    )
+                    if divergence > 0:
+                        token_color = "#c62828"
+                    elif divergence < 0:
+                        token_color = "#1565c0"
+                    else:
+                        token_color = "#333333"
+                pieces.append('<tspan fill="%s">%s</tspan>' % (token_color, token_text))
+            pieces.append("</text>")
+            lines.append("".join(pieces))
         row_y += 14
 
     lines.append("</svg>")
