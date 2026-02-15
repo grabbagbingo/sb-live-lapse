@@ -6,7 +6,7 @@
   <title>SB Live Lapse</title>
 </head>
 <body style="font-family: Helvetica, Arial, sans-serif; margin: 20px;">
-  <h1>Santa Barbara Lapse Chart (Updates every 15min)</h1>
+  <h1 id="chartTitle">Santa Barbara Lapse Chart (Refreshed at --:--)</h1>
   <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
     <button id="metricBtn" type="button" style="padding: 6px 10px; border: 1px solid #444; background: #111; color: #fff; border-radius: 4px; cursor: pointer;">Metric</button>
     <button id="imperialBtn" type="button" style="padding: 6px 10px; border: 1px solid #888; background: #fff; color: #222; border-radius: 4px; cursor: pointer;">Imperial</button>
@@ -17,6 +17,7 @@
       var slotMs = 15 * 60 * 1000;
       var slot = Math.floor(Date.now() / slotMs);
       var img = document.getElementById("chart");
+      var title = document.getElementById("chartTitle");
       var metricBtn = document.getElementById("metricBtn");
       var imperialBtn = document.getElementById("imperialBtn");
       var storageKey = "sb_units";
@@ -46,6 +47,21 @@
         if (raw === "imperial") saved = "imperial";
       } catch (e) {}
       setActive(saved);
+
+      fetch("./station_state.json?v=" + slot, { cache: "no-store" })
+        .then(function (resp) { return resp.ok ? resp.json() : null; })
+        .then(function (state) {
+          if (!state || !state.generated_at) return;
+          var dt = new Date(state.generated_at);
+          var hhmm = new Intl.DateTimeFormat("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+            timeZone: "America/Los_Angeles"
+          }).format(dt);
+          title.textContent = "Santa Barbara Lapse Chart (Refreshed at " + hhmm + ")";
+        })
+        .catch(function () {});
     })();
   </script>
 </body>
