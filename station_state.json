@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-14T23:55:37Z",
+  "generated_at": "2026-02-14T23:59:29Z",
   "stations": {
     "421SE": {
       "dew_c": 11.730005000000006,
@@ -21,11 +21,11 @@
       "name": "La Cumbre",
       "provider": "CWOP-findU",
       "temp_c": 8.88888888888889,
-      "temp_ob_time": "2026-02-14T23:54",
-      "wind_dir": 160.0,
-      "wind_gust_mps": 8.940785179754485,
-      "wind_ob_time": "2026-02-14T23:54",
-      "wind_spd_mps": 4.023353330889519
+      "temp_ob_time": "2026-02-14T23:58",
+      "wind_dir": 333.0,
+      "wind_gust_mps": 6.25854962582814,
+      "wind_ob_time": "2026-02-14T23:58",
+      "wind_spd_mps": 0.4470392589877243
     },
     "KSBA": {
       "dew_c": 10.999994000000015,
@@ -34,11 +34,11 @@
       "name": "Airport",
       "provider": "ASOS-HFM (last-good)",
       "temp_c": 15.999994000000015,
-      "temp_ob_time": "2026-02-14T23:45",
+      "temp_ob_time": "2026-02-14T23:50",
       "wind_dir": 230.0,
       "wind_gust_mps": 7.716667,
-      "wind_ob_time": "2026-02-14T23:45",
-      "wind_spd_mps": 3.086667
+      "wind_ob_time": "2026-02-14T23:50",
+      "wind_spd_mps": 2.057778
     },
     "MPWC1": {
       "dew_c": 10.490015000000028,
@@ -58,7 +58,7 @@
       "elev_m": 493.5,
       "id": "MTIC1",
       "name": "Montecito",
-      "provider": "cache (last-good)",
+      "provider": null,
       "temp_c": 12.778008999999997,
       "temp_ob_time": "2026-02-14T22:47",
       "wind_dir": 212.0,
@@ -97,7 +97,7 @@
       "elev_m": 717.8,
       "id": "SE234",
       "name": "AntFarm",
-      "provider": null,
+      "provider": "cache (last-good)",
       "temp_c": 9.943994000000032,
       "temp_ob_time": "2026-02-14T23:00",
       "wind_dir": 57.360001,

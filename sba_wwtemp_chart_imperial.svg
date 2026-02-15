@@ -7,7 +7,7 @@
   .legend-h { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; fill: #222222; }
   .legend-row { font-family: Helvetica, Arial, sans-serif; font-size: 11px; fill: #333333; }
   .rass { fill: none; stroke: #0077b6; stroke-width: 2; }
-  .dalr { fill: none; stroke: #d1495b; stroke-width: 2; stroke-dasharray: 6 4; }
+  .dalr { fill: none; stroke: #d1495b; stroke-width: 1.5; stroke-dasharray: 6 4; stroke-opacity: 0.45; }
   .rass-point { fill: #0077b6; }
   .station { fill: #f4a261; stroke: #8b4c12; stroke-width: 1; }
   .barb-shaft { stroke: #1f2937; stroke-width: 1.3; }
@@ -58,8 +58,7 @@
 <circle class="rass-point" cx="609.83" cy="208.16" r="2" />
 <circle class="rass-point" cx="581.13" cy="170.43" r="2" />
 <rect class="station" x="412.35" y="53.87" width="6" height="6" />
-<line class="barb-shaft" x1="415.35" y1="56.87" x2="421.50" y2="73.78" />
-<line class="barb-feather" x1="421.50" y1="73.78" x2="414.24" y2="74.30" />
+<circle class="barb-shaft" cx="415.35" cy="56.87" r="2.5" fill="none" />
 <text class="station-label" x="421.35" y="64.00" text-anchor="start">La Cumbre</text>
 <rect class="station" x="325.68" y="103.33" width="6" height="6" />
 <line class="barb-shaft" x1="328.68" y1="106.33" x2="330.87" y2="124.20" />
@@ -88,13 +87,13 @@
 <text class="label" x="120" y="566">RASS @ 14:55</text>
 <line class="dalr" x1="310" y1="562" x2="334" y2="562" />
 <text class="label" x="340" y="566">DALR (5.4 F/1000 ft)</text>
-<text class="legend-h" x="90" y="596">Stations (PST)</text>
-<text class="legend-row" x="90" y="612">La Cumbre @ 15:54 - 48.0F, winds 160, 9g20mph</text>
+<text class="legend-h" x="90" y="596">Stations</text>
+<text class="legend-row" x="90" y="612">La Cumbre @ 15:58 - 48.0F, winds 333, 1g14mph</text>
 <text class="legend-row" x="90" y="626">VOR @ 15:40 - 46.1F, winds 173, 7g13mph</text>
 <text class="legend-row" x="90" y="640">AntFarm @ 15:40 - 49.9F, winds 057, 6g11mph</text>
 <text class="legend-row" x="90" y="654">Montecito @ 14:47 - 55.0F, winds 212, 2g17mph</text>
 <text class="legend-row" x="90" y="668">SM Pass @ 15:06 - 57.0F, winds 139, 8g17mph</text>
 <text class="legend-row" x="90" y="682">Parma @ 15:40 - 58.4F, winds 196, 3g7mph</text>
 <text class="legend-row" x="90" y="696">Romero Cyn @ 15:40 - 58.1F, winds 150, 5g13mph</text>
-<text class="legend-row" x="90" y="710">Airport @ 15:45 - 60.8F, winds 230, 7g17mph</text>
+<text class="legend-row" x="90" y="710">Airport @ 15:50 - 60.8F, winds 230, 5g17mph</text>
 </svg>

@@ -775,7 +775,7 @@ def draw_svg(
         "  .legend-h { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; fill: #222222; }",
         "  .legend-row { font-family: Helvetica, Arial, sans-serif; font-size: 11px; fill: #333333; }",
         "  .rass { fill: none; stroke: #0077b6; stroke-width: 2; }",
-        "  .dalr { fill: none; stroke: #d1495b; stroke-width: 2; stroke-dasharray: 6 4; }",
+        "  .dalr { fill: none; stroke: #d1495b; stroke-width: 1.5; stroke-dasharray: 6 4; stroke-opacity: 0.45; }",
         "  .rass-point { fill: #0077b6; }",
         "  .station { fill: #f4a261; stroke: #8b4c12; stroke-width: 1; }",
         "  .barb-shaft { stroke: #1f2937; stroke-width: 1.3; }",
@@ -846,7 +846,7 @@ def draw_svg(
     lines.append('<text class="label" x="%d" y="%d">%s</text>' % (dalr_x + 30, legend_y + 4, dalr_label))
 
     list_y0 = legend_y + 34
-    lines.append('<text class="legend-h" x="%d" y="%d">Stations (PST)</text>' % (legend_x, list_y0))
+    lines.append('<text class="legend-h" x="%d" y="%d">Stations</text>' % (legend_x, list_y0))
 
     row_y = list_y0 + 16
     for row in stations_all:
