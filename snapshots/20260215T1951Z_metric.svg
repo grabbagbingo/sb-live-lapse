@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760">
+<style>
+  .axis { stroke: #202020; stroke-width: 1; }
+  .grid { stroke: #dddddd; stroke-width: 1; }
+  .title { font-family: Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 600; fill: #111111; }
+  .label { font-family: Helvetica, Arial, sans-serif; font-size: 12px; fill: #222222; }
+  .legend-h { font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; fill: #222222; }
+  .legend-row { font-family: Helvetica, Arial, sans-serif; font-size: 11px; fill: #333333; }
+  .rass { fill: none; stroke: #000000; stroke-width: 2; }
+  .dalr { fill: none; stroke: #000000; stroke-width: 1.5; stroke-dasharray: 6 4; stroke-opacity: 0.45; }
+  .rass-point { fill: #0077b6; }
+  .station { fill: #f4a261; stroke: #8b4c12; stroke-width: 1; }
+  .barb-shaft { stroke: #1f2937; stroke-width: 1.3; }
+  .barb-feather { stroke: #1f2937; stroke-width: 1.2; }
+  .barb-flag { fill: #1f2937; stroke: #1f2937; stroke-width: 1; }
+  .station-label { font-family: Helvetica, Arial, sans-serif; font-size: 11px; fill: #444444; }
+  .station-dev-pos { font-family: Helvetica, Arial, sans-serif; font-size: 10px; fill: #c62828; }
+  .station-dev-neg { font-family: Helvetica, Arial, sans-serif; font-size: 10px; fill: #1565c0; }
+  .station-dev-na { font-family: Helvetica, Arial, sans-serif; font-size: 10px; fill: #666666; }
+  .rass-dev-pos { font-family: Helvetica, Arial, sans-serif; font-size: 9px; fill: #c62828; }
+  .rass-dev-neg { font-family: Helvetica, Arial, sans-serif; font-size: 9px; fill: #1565c0; }
+  .rass-dev-na { font-family: Helvetica, Arial, sans-serif; font-size: 9px; fill: #666666; }
+</style>
+<rect x="0" y="0" width="1180" height="760" fill="#ffffff" />
+<text class="title" x="90" y="28">Estimated LCL @ VOR: 1289 m - winds 197, 11g17mph (11:30 PST)</text>
+<line class="grid" x1="90" y1="510.00" x2="1110" y2="510.00" />
+<text class="label" x="82" y="514.00" text-anchor="end">0</text>
+<line class="grid" x1="90" y1="439.23" x2="1110" y2="439.23" />
+<text class="label" x="82" y="443.23" text-anchor="end">200</text>
+<line class="grid" x1="90" y1="368.46" x2="1110" y2="368.46" />
+<text class="label" x="82" y="372.46" text-anchor="end">400</text>
+<line class="grid" x1="90" y1="297.69" x2="1110" y2="297.69" />
+<text class="label" x="82" y="301.69" text-anchor="end">600</text>
+<line class="grid" x1="90" y1="226.92" x2="1110" y2="226.92" />
+<text class="label" x="82" y="230.92" text-anchor="end">800</text>
+<line class="grid" x1="90" y1="156.15" x2="1110" y2="156.15" />
+<text class="label" x="82" y="160.15" text-anchor="end">1000</text>
+<line class="grid" x1="90" y1="85.38" x2="1110" y2="85.38" />
+<text class="label" x="82" y="89.38" text-anchor="end">1200</text>
+<line class="grid" x1="264.68" y1="50" x2="264.68" y2="510" />
+<text class="label" x="264.68" y="528" text-anchor="middle">5.0</text>
+<line class="grid" x1="602.81" y1="50" x2="602.81" y2="510" />
+<text class="label" x="602.81" y="528" text-anchor="middle">10.0</text>
+<line class="grid" x1="940.94" y1="50" x2="940.94" y2="510" />
+<text class="label" x="940.94" y="528" text-anchor="middle">15.0</text>
+<line class="axis" x1="90" y1="50" x2="90" y2="510" />
+<line class="axis" x1="90" y1="510" x2="1110" y2="510" />
+<text class="label" x="600.00" y="546" text-anchor="middle">Temperature (C)</text>
+<text class="label" x="26" y="280.00" text-anchor="middle" transform="rotate(-90 26 280.00)">Altitude (m)</text>
+<path class="rass" d="M852.82,439.23 L833.48,403.85 L795.61,368.46 L704.25,333.08 L613.15,297.69 L554.32,262.31 L507.66,226.92 L480.88,191.54" />
+<path class="dalr" d="M985.37,510.00 L123.81,50.00" />
+<circle class="rass-point" cx="852.82" cy="439.23" r="2" />
+<text class="rass-dev-na" x="858.82" y="436.23" text-anchor="start">(n/a)</text>
+<circle class="rass-point" cx="833.48" cy="403.85" r="2" />
+<text class="rass-dev-pos" x="827.48" y="400.85" text-anchor="end">(+0.7)</text>
+<circle class="rass-point" cx="795.61" cy="368.46" r="2" />
+<text class="rass-dev-pos" x="801.61" y="365.46" text-anchor="start">(+0.4)</text>
+<circle class="rass-point" cx="704.25" cy="333.08" r="2" />
+<text class="rass-dev-neg" x="698.25" y="330.08" text-anchor="end">(-0.4)</text>
+<circle class="rass-point" cx="613.15" cy="297.69" r="2" />
+<text class="rass-dev-neg" x="619.15" y="294.69" text-anchor="start">(-0.4)</text>
+<circle class="rass-point" cx="554.32" cy="262.31" r="2" />
+<text class="rass-dev-pos" x="548.32" y="259.31" text-anchor="end">(+0.1)</text>
+<circle class="rass-point" cx="507.66" cy="226.92" r="2" />
+<text class="rass-dev-pos" x="513.66" y="223.92" text-anchor="start">(+0.3)</text>
+<circle class="rass-point" cx="480.88" cy="191.54" r="2" />
+<text class="rass-dev-pos" x="474.88" y="188.54" text-anchor="end">(+0.6)</text>
+<rect class="station" x="487.10" y="82.03" width="6" height="6" />
+<line class="barb-shaft" x1="490.10" y1="85.03" x2="491.67" y2="102.96" />
+<line class="barb-feather" x1="491.67" y1="102.96" x2="484.52" y2="101.58" />
+<line class="barb-feather" x1="491.32" y1="98.98" x2="487.23" y2="98.13" />
+<text class="station-label" x="496.10" y="89.03" text-anchor="start">La Cumbre</text>
+<text class="station-dev-na" x="496.10" y="99.03" text-anchor="start"><tspan class="station-dev-pos">(+2.5)</tspan><tspan fill="#444444"> (-18min)</tspan></text>
+<rect class="station" x="401.80" y="128.42" width="6" height="6" />
+<line class="barb-shaft" x1="404.80" y1="131.42" x2="399.56" y2="148.64" />
+<line class="barb-feather" x1="399.56" y1="148.64" x2="393.45" y2="144.69" />
+<text class="station-label" x="410.80" y="135.42" text-anchor="start">VOR</text>
+<text class="station-dev-na" x="410.80" y="145.42" text-anchor="start"><tspan class="station-dev-pos">(+0.2)</tspan><tspan fill="#444444"> (+0min)</tspan></text>
+<rect class="station" x="619.35" y="253.01" width="6" height="6" />
+<line class="barb-shaft" x1="622.35" y1="256.01" x2="638.02" y2="247.16" />
+<line class="barb-feather" x1="638.02" y1="247.16" x2="638.95" y2="251.23" />
+<text class="station-label" x="628.35" y="260.01" text-anchor="start">AntFarm</text>
+<text class="station-dev-na" x="628.35" y="270.01" text-anchor="start"><tspan class="station-dev-neg">(-2.7)</tspan><tspan fill="#444444"> (-24min)</tspan></text>
+<rect class="station" x="975.54" y="346.18" width="6" height="6" />
+<line class="barb-shaft" x1="978.54" y1="349.18" x2="988.60" y2="364.10" />
+<line class="barb-feather" x1="988.60" y1="364.10" x2="984.61" y2="365.34" />
+<text class="station-label" x="984.54" y="353.18" text-anchor="start">SM Pass</text>
+<text class="station-dev-na" x="984.54" y="363.18" text-anchor="start"><tspan class="station-dev-pos">(+2.5)</tspan><tspan fill="#444444"> (+24min)</tspan></text>
+<rect class="station" x="953.35" y="422.89" width="6" height="6" />
+<line class="barb-shaft" x1="956.35" y1="425.89" x2="950.67" y2="442.97" />
+<line class="barb-feather" x1="950.67" y1="442.97" x2="947.26" y2="440.57" />
+<text class="station-label" x="962.35" y="429.89" text-anchor="start">Parma</text>
+<text class="station-dev-na" x="962.35" y="439.89" text-anchor="start"><tspan class="station-dev-pos">(+0.5)</tspan><tspan fill="#444444"> (+10min)</tspan></text>
+<rect class="station" x="1073.19" y="505.94" width="6" height="6" />
+<line class="barb-shaft" x1="1076.19" y1="508.94" x2="1089.98" y2="520.51" />
+<line class="barb-feather" x1="1089.98" y1="520.51" x2="1083.94" y2="524.59" />
+<text class="station-label" x="1070.19" y="498.00" text-anchor="end">Airport</text>
+<text class="station-dev-na" x="1070.19" y="508.00" text-anchor="end">(n/a)</text>
+<line class="rass" x1="90" y1="562" x2="114" y2="562" />
+<text class="label" x="120" y="566">RASS @ 10:55</text>
+<line class="dalr" x1="310" y1="562" x2="334" y2="562" />
+<text class="label" x="340" y="566">DALR (9.8 C/km)</text>
+<text class="legend-h" x="90" y="596">Stations</text>
+<text class="legend-row" x="90" y="612"><tspan>La Cumbre 1201m @ 11:48 - 8.3C, winds 175, 16g21mph, DALR dev </tspan><tspan fill="#c62828">VOR:+2.5C</tspan><tspan>; </tspan><tspan fill="#c62828">AntFarm:+2.8C</tspan><tspan>; </tspan><tspan fill="#c62828">Montecito:+0.8C</tspan><tspan>; </tspan><tspan fill="#c62828">SM Pass:+0.1C</tspan><tspan>; </tspan><tspan fill="#c62828">Parma:+2.5C</tspan><tspan>; </tspan><tspan fill="#c62828">Airport:+3.1C</tspan></text>
+<text class="legend-row" x="90" y="626"><tspan>VOR 1070m @ 11:30 - 7.1C, winds 197, 11g17mph, DALR dev </tspan><tspan fill="#c62828">AntFarm:+0.2C</tspan><tspan>; </tspan><tspan fill="#1565c0">Montecito:-1.7C</tspan><tspan>; </tspan><tspan fill="#1565c0">SM Pass:-2.5C</tspan><tspan>; </tspan><tspan fill="#1565c0">Parma:-0.0C</tspan><tspan>; </tspan><tspan fill="#c62828">Airport:+0.5C</tspan></text>
+<text class="legend-row" x="90" y="640"><tspan>AntFarm 718m @ 11:30 - 10.3C, winds 061, 6g12mph, DALR dev </tspan><tspan fill="#1565c0">Montecito:-2.0C</tspan><tspan>; </tspan><tspan fill="#1565c0">SM Pass:-2.7C</tspan><tspan>; </tspan><tspan fill="#1565c0">Parma:-0.2C</tspan><tspan>; </tspan><tspan fill="#c62828">Airport:+0.3C</tspan></text>
+<text class="legend-row" x="90" y="654"><tspan>Montecito 494m @ 10:47 - 14.4C, winds 209, 5g17mph, DALR dev </tspan><tspan fill="#1565c0">SM Pass:-0.7C</tspan><tspan>; </tspan><tspan fill="#c62828">Parma:+1.7C</tspan><tspan>; </tspan><tspan fill="#c62828">Airport:+2.3C</tspan></text>
+<text class="legend-row" x="90" y="668"><tspan>SM Pass 454m @ 11:06 - 15.6C, winds 146, 8g18mph, DALR dev </tspan><tspan fill="#c62828">Parma:+2.5C</tspan><tspan>; </tspan><tspan fill="#c62828">Airport:+3.0C</tspan></text>
+<text class="legend-row" x="90" y="682"><tspan>Parma 238m @ 11:30 - 15.2C, winds 198, 3g8mph, DALR dev </tspan><tspan fill="#c62828">Airport:+0.5C</tspan></text>
+<text class="legend-row" x="90" y="696">Airport 3m @ 11:40 - 17.0C, winds 130, 12g18mph, DALR dev n/a</text>
+</svg>
