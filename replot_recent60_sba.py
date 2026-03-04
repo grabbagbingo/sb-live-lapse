@@ -514,6 +514,37 @@ def parse_history_payload(text: str) -> List[Dict]:
     return out
 
 
+def parse_history_payload_with_presence(text: str) -> Tuple[List[Dict], bool]:
+    parsed = parse_history_payload(text)
+    if parsed:
+        return parsed, True
+
+    # An explicitly empty snapshots list is still a valid history payload.
+    try:
+        payload = json.loads(text)
+    except Exception:
+        return [], False
+
+    snapshots = payload if isinstance(payload, list) else payload.get("snapshots")
+    if isinstance(snapshots, list):
+        return [], True
+    return [], False
+
+
+def history_continuity_required() -> bool:
+    bootstrap = os.getenv("SB_HISTORY_ALLOW_BOOTSTRAP", "").strip().lower()
+    if bootstrap in ("1", "true", "yes"):
+        return False
+
+    override = os.getenv("SB_HISTORY_REQUIRE_CONTINUITY", "").strip().lower()
+    if override in ("1", "true", "yes"):
+        return True
+    if override in ("0", "false", "no"):
+        return False
+
+    return os.getenv("GITHUB_ACTIONS", "").strip().lower() == "true"
+
+
 def load_last_good_state() -> Dict[str, Dict]:
     url = state_url_from_env()
     if not url:
@@ -532,22 +563,22 @@ def load_last_good_state() -> Dict[str, Dict]:
     return {}
 
 
-def load_station_history() -> List[Dict]:
+def load_station_history() -> Tuple[List[Dict], str]:
     url = history_url_from_env()
     if not url:
         url = DEFAULT_DEPLOYED_HISTORY_URL
     try:
-        parsed = parse_history_payload(fetch_text(url, timeout=15))
-        if parsed:
-            return parsed
+        parsed, valid = parse_history_payload_with_presence(fetch_text(url, timeout=15))
+        if valid:
+            return parsed, "remote"
     except Exception:
         pass
 
     if HISTORY_PATH.exists():
-        parsed = parse_history_payload(HISTORY_PATH.read_text())
-        if parsed:
-            return parsed
-    return []
+        parsed, valid = parse_history_payload_with_presence(HISTORY_PATH.read_text())
+        if valid:
+            return parsed, "local"
+    return [], "none"
 
 
 def prune_history_snapshots(snapshots: List[Dict], now_utc: datetime) -> List[Dict]:
@@ -805,9 +836,14 @@ def write_station_history(
         return metric_rel, imperial_rel
 
     run_at_iso = now_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
-    metric_rel, imperial_rel = write_snapshot_chart_files(run_at_iso, metric_svg, imperial_svg)
+    history, history_source = load_station_history()
+    if history_continuity_required() and history_source == "none":
+        raise RuntimeError(
+            "History continuity guard: existing station history unavailable from deployed URL and local fallback. "
+            "Set SB_HISTORY_ALLOW_BOOTSTRAP=1 to allow bootstrap."
+        )
 
-    history = load_station_history()
+    metric_rel, imperial_rel = write_snapshot_chart_files(run_at_iso, metric_svg, imperial_svg)
     history.append(
         {
             "run_at": run_at_iso,

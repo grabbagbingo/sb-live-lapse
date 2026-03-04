@@ -1,0 +1,9 @@
+# Generated weather artifacts
+madis_recent60_stations.csv
+sba_latest.01t
+sba_wwtemp_chart.svg
+sba_wwtemp_chart_metric.svg
+sba_wwtemp_chart_imperial.svg
+station_state.json
+station_history.json
+snapshots/
