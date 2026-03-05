@@ -1285,7 +1285,10 @@ def draw_svg(
     for x in x_ticks:
         x_px = x_to_px(x)
         lines.append('<line class="grid" x1="%.2f" y1="%d" x2="%.2f" y2="%d" />' % (x_px, margin_top, x_px, height - margin_bottom))
-        lines.append('<text class="label" x="%.2f" y="%d" text-anchor="middle">%.1f</text>' % (x_px, height - margin_bottom + 18, x))
+        lines.append(
+            '<text class="label" x="%.2f" y="%d" text-anchor="middle">%.1f%s</text>'
+            % (x_px, height - margin_bottom + 18, x, temp_suffix)
+        )
 
     lines.append('<line class="axis" x1="%d" y1="%d" x2="%d" y2="%d" />' % (margin_left, margin_top, margin_left, height - margin_bottom))
     lines.append('<line class="axis" x1="%d" y1="%d" x2="%d" y2="%d" />' % (margin_left, height - margin_bottom, width - margin_right, height - margin_bottom))
@@ -1402,10 +1405,11 @@ def draw_svg(
 
         obs_time = row.get("wind_ob_time") or row.get("temp_ob_time")
         time_text = utc_iso_to_pst_hhmm(obs_time)
+        lapse_label = "lapse/1000%s" % altitude_unit
         if time_text:
-            prefix = "%s @ %s - %s, %s, lapse " % (station_with_elev, time_text, temp_text, wind_text_for_row(row))
+            prefix = "%s @ %s - %s, %s, %s " % (station_with_elev, time_text, temp_text, wind_text_for_row(row), lapse_label)
         else:
-            prefix = "%s @ missing - %s, winds missing, lapse " % (station_with_elev, temp_text)
+            prefix = "%s @ missing - %s, winds missing, %s " % (station_with_elev, temp_text, lapse_label)
 
         lapse_info = lapse_info_by_station.get(row["id"], {"kind": "missing", "items": []})
         kind = lapse_info.get("kind")
