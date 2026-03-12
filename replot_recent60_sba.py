@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from zoneinfo import ZoneInfo
 
 
 STATIONS = ["KC6OYN", "SE068", "SE234", "MTIC1", "MPWC1", "421SE", "KSBA"]
@@ -41,7 +42,7 @@ SNAPSHOT_DIR = Path("snapshots")
 MS_TO_MPH = 2.23694
 FT_PER_M = 3.28084
 KTS_PER_MPS = 1.94384
-PST = timezone(timedelta(hours=-8), name="PST")
+PACIFIC = ZoneInfo("America/Los_Angeles")
 HTTP_USER_AGENT = "Mozilla/5.0 (compatible; sb-live-lapse/1.0)"
 CWOP_ELEV_M = {
     "KC6OYN": 1201.0,
@@ -735,7 +736,7 @@ def build_snapshot_svgs(snapshot: Dict) -> Optional[Tuple[str, str]]:
     title_imperial = build_lcl_title(vor, altitude_unit="ft")
 
     rass_obj = snapshot.get("rass") if isinstance(snapshot.get("rass"), dict) else {}
-    rass_hhmm = utc_iso_to_pst_hhmm(rass_obj.get("ob_time_utc")) or "missing"
+    rass_hhmm = utc_iso_to_local_hhmm(rass_obj.get("ob_time_utc")) or "missing"
 
     metric_rass = convert_rass_points_units(rass_points, unit_system="metric")
     metric_all = convert_station_rows_units(stations, unit_system="metric")
@@ -974,11 +975,18 @@ def convert_station_rows_units(rows: List[Dict], unit_system: str) -> List[Dict]
     return out
 
 
-def utc_iso_to_pst_hhmm(iso_time: Optional[str]) -> Optional[str]:
+def utc_iso_to_local_hhmm(iso_time: Optional[str]) -> Optional[str]:
     dt_utc = parse_iso_utc(iso_time)
     if dt_utc is None:
         return None
-    return dt_utc.astimezone(PST).strftime("%H:%M")
+    return dt_utc.astimezone(PACIFIC).strftime("%H:%M")
+
+
+def utc_iso_to_local_hhmm_tz(iso_time: Optional[str]) -> Optional[str]:
+    dt_utc = parse_iso_utc(iso_time)
+    if dt_utc is None:
+        return None
+    return dt_utc.astimezone(PACIFIC).strftime("%H:%M %Z")
 
 
 def wind_text_for_row(row: Dict) -> str:
@@ -1077,9 +1085,9 @@ def build_lcl_title(vor_row_metric: Optional[Dict], altitude_unit: str) -> str:
         cloud_base_value = int(round(cloud_base_m))
         cloud_base_label = "m"
 
-    time_hhmm = utc_iso_to_pst_hhmm(vor_row_metric.get("temp_ob_time"))
+    time_hhmm = utc_iso_to_local_hhmm_tz(vor_row_metric.get("temp_ob_time"))
     if time_hhmm:
-        return f"Estimated LCL @ VOR: {cloud_base_value} {cloud_base_label} - {vor_wind} ({time_hhmm} PST)"
+        return f"Estimated LCL @ VOR: {cloud_base_value} {cloud_base_label} - {vor_wind} ({time_hhmm})"
     return f"Estimated LCL @ VOR: {cloud_base_value} {cloud_base_label} - {vor_wind}"
 
 
@@ -1417,7 +1425,7 @@ def draw_svg(
         station_with_elev = "%s %s" % (row["name"], elev_text)
 
         obs_time = row.get("wind_ob_time") or row.get("temp_ob_time")
-        time_text = utc_iso_to_pst_hhmm(obs_time)
+        time_text = utc_iso_to_local_hhmm(obs_time)
         lapse_label = "lapse/1000%s" % altitude_unit
         if time_text:
             prefix = "%s @ %s - %s, %s, %s " % (station_with_elev, time_text, temp_text, wind_text_for_row(row), lapse_label)
@@ -1504,7 +1512,7 @@ def main() -> None:
 
     stations_recent = [r for r in stations if r.get("recent") and r.get("temp_c") is not None and r.get("elev_m") is not None]
 
-    rass_hhmm = utc_iso_to_pst_hhmm(rass_time_utc) or "missing"
+    rass_hhmm = utc_iso_to_local_hhmm(rass_time_utc) or "missing"
     if rass_source != "live":
         rass_hhmm = f"{rass_hhmm} fallback"
     vor = next((r for r in stations if r["id"] == "SE068"), None)
